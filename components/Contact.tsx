@@ -87,7 +87,7 @@ const Contact: React.FC<ContactProps> = ({ onBack }) => {
       </button>
 
       {/* Main Content */}
-      <div className="relative z-10 flex flex-1 items-start justify-center pt-4 md:items-center md:pt-0">
+      <div className="relative z-10 pt-4 md:flex md:flex-1 md:items-center md:justify-center md:pt-0">
         <motion.div 
           className="mx-auto grid w-full max-w-6xl grid-cols-1 items-start gap-14 md:grid-cols-[minmax(0,27rem)_minmax(0,30rem)] md:items-center md:justify-center md:gap-20"
           variants={containerVariants}
@@ -109,13 +109,6 @@ const Contact: React.FC<ContactProps> = ({ onBack }) => {
             >
               Always interested in discussing new projects, creative collaborations, or just sharing design stories.
             </motion.p>
-
-            <motion.div variants={itemVariants} className="pt-2 md:hidden">
-              <div className="inline-block rounded border border-white/10 bg-[#111] px-4 py-2">
-                <span className="mr-2 inline-block h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
-                <span className="text-xs text-white/70">Available for freelance</span>
-              </div>
-            </motion.div>
           </div>
 
           {/* Right: Links */}
@@ -162,10 +155,26 @@ const Contact: React.FC<ContactProps> = ({ onBack }) => {
         </motion.div>
       </div>
 
+      <div className="relative z-10 mt-auto space-y-5 pb-[calc(env(safe-area-inset-bottom)+4.25rem)] pt-12 md:hidden">
+        <motion.div variants={itemVariants}>
+          <div className="inline-block rounded border border-white/10 bg-[#111] px-4 py-2">
+            <span className="mr-2 inline-block h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
+            <span className="text-xs text-white/70">Available for freelance</span>
+          </div>
+        </motion.div>
+
+        <motion.div 
+          variants={itemVariants}
+          className="text-left text-xs font-mono text-white/20"
+        >
+          Kaki Design Console © {new Date().getFullYear()}
+        </motion.div>
+      </div>
+
       {/* Footer */}
       <motion.div 
         variants={itemVariants}
-        className="relative z-10 pt-12 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] text-left text-xs font-mono text-white/20 md:pb-0"
+        className="relative z-10 hidden pt-12 text-left text-xs font-mono text-white/20 md:block"
       >
         Kaki Design Console © {new Date().getFullYear()}
       </motion.div>
