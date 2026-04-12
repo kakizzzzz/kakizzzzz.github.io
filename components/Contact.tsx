@@ -67,7 +67,7 @@ const Contact: React.FC<ContactProps> = ({ onBack }) => {
   };
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-x-hidden bg-black px-6 pb-[calc(env(safe-area-inset-bottom)+10rem)] pt-[calc(env(safe-area-inset-top)+12rem)] text-white md:px-16 md:pb-16 md:pt-16">
+    <div className="relative flex min-h-screen flex-col overflow-x-hidden bg-black px-6 pb-[calc(env(safe-area-inset-bottom)+3rem)] pt-[calc(env(safe-area-inset-top)+12rem)] text-white md:px-16 md:pb-16 md:pt-16">
       
       {/* Background Decor */}
       <div className="absolute top-0 right-0 w-[50vw] h-[50vw] bg-[#3b82f6]/10 blur-[120px] rounded-full pointer-events-none" />
@@ -165,12 +165,10 @@ const Contact: React.FC<ContactProps> = ({ onBack }) => {
       {/* Footer */}
       <motion.div 
         variants={itemVariants}
-        className="relative z-10 pt-12 text-left text-xs font-mono text-white/20"
+        className="relative z-10 pt-12 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] text-left text-xs font-mono text-white/20 md:pb-0"
       >
         Kaki Design Console © {new Date().getFullYear()}
       </motion.div>
-
-      <div aria-hidden="true" className="relative z-10 h-[16vh] min-h-20 md:hidden" />
 
     </div>
   );
