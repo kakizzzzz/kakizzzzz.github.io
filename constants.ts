@@ -71,6 +71,7 @@ export const PROJECTS: Record<ProjectCategory, ProjectData> = {
           {
             id: 'feline-blessing-board',
             title: 'Pattern Board',
+            flow: 'continuous',
             images: felineBlessingLongParts,
           },
         ],
@@ -86,6 +87,7 @@ export const PROJECTS: Record<ProjectCategory, ProjectData> = {
           {
             id: 'realm-of-wind-chasers-board',
             title: 'Pattern Board',
+            flow: 'continuous',
             images: realmOfWindChasersLongParts,
           },
         ],
@@ -101,6 +103,7 @@ export const PROJECTS: Record<ProjectCategory, ProjectData> = {
           {
             id: 'tidal-oath-board',
             title: 'Pattern Board',
+            flow: 'continuous',
             images: tidalOathLongParts,
           },
         ],
@@ -135,6 +138,7 @@ export const PROJECTS: Record<ProjectCategory, ProjectData> = {
           {
             id: 'mao-dot-main',
             title: 'Brand Identity Board',
+            flow: 'continuous',
             description:
               'A continuous brand board that keeps the logo, packaging, and rollout materials readable in one uninterrupted flow.',
             images: maoDotLongParts,
@@ -412,6 +416,7 @@ export const PROJECTS: Record<ProjectCategory, ProjectData> = {
           {
             id: 'selected-works-board',
             title: 'Portfolio Board',
+            flow: 'continuous',
             description:
               'A single continuous board that lets the selection read like one curated spread instead of a disconnected slideshow.',
             images: selectedWorksLongParts,

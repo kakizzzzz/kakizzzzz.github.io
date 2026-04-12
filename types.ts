@@ -17,6 +17,7 @@ export interface ProjectModuleSection {
   description?: string;
   images: string[];
   layout?: 'stack' | 'grid';
+  flow?: 'standard' | 'continuous';
 }
 
 export interface AmazonModuleData {

@@ -51,6 +51,15 @@ const LongScrollCaseStudy: React.FC<LongScrollCaseStudyProps> = ({ module }) => 
         <div className="space-y-10">
           {sections.map((section) => {
             const isGrid = section.layout === 'grid';
+            const isContinuous = !isGrid && section.flow === 'continuous';
+            const contentWrapperClassName = isGrid
+              ? 'grid gap-4 md:grid-cols-2'
+              : isContinuous
+                ? usePlainBoard
+                  ? 'mx-auto max-w-[980px] overflow-hidden'
+                  : 'mx-auto max-w-[980px] overflow-hidden rounded-[22px] border border-[#d7cab7] bg-white/88 p-2 shadow-[0_10px_28px_rgba(44,31,15,0.08)]'
+                : 'space-y-4';
+
             return (
               <section key={section.id} className="space-y-4">
                 {(section.title || section.description) && (
@@ -68,12 +77,16 @@ const LongScrollCaseStudy: React.FC<LongScrollCaseStudyProps> = ({ module }) => 
                   </div>
                 )}
 
-                <div className={isGrid ? 'grid gap-4 md:grid-cols-2' : 'space-y-4'}>
+                <div className={contentWrapperClassName}>
                   {section.images.map((image, index) => (
                     <div
                       key={`${section.id}-${index}`}
                       className={
-                        usePlainBoard
+                        isContinuous
+                          ? index === 0
+                            ? 'w-full'
+                            : '-mt-px w-full'
+                          : usePlainBoard
                           ? isGrid
                             ? 'w-full'
                             : 'mx-auto w-fit max-w-[980px]'
@@ -86,7 +99,9 @@ const LongScrollCaseStudy: React.FC<LongScrollCaseStudyProps> = ({ module }) => 
                         src={image}
                         mobileSrc={getMobileImageSource(image)}
                         alt={`${module.title} section ${section.title ?? 'image'} ${index + 1}`}
-                        className={`mx-auto block h-auto w-auto max-w-full ${usePlainBoard ? '' : 'rounded-[16px]'}`}
+                        className={`mx-auto block h-auto max-w-full ${
+                          isContinuous ? 'w-full' : `w-auto ${usePlainBoard ? '' : 'rounded-[16px]'}`
+                        }`}
                         loading="lazy"
                         decoding="async"
                         loadingEffect={module.loadingEffect}
