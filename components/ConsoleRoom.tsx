@@ -252,10 +252,18 @@ const ConsoleRoom: React.FC<ConsoleRoomProps> = ({ onSelectCategory, interaction
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="absolute inset-x-[18%] top-[40%] space-y-4 pointer-events-none text-center text-[#5a6f91]"
+                className="absolute inset-x-[12%] top-[40%] space-y-4 pointer-events-none text-center text-[#5a6f91] sm:inset-x-[18%]"
               >
-                <TextRevealBlock lines={['LOADING PORTFOLIO']} delay={0.02} className="font-serif font-semibold tracking-[0.14em] text-[14px] whitespace-nowrap" />
-                <TextRevealBlock lines={[`MODULE: ${selectedLabel ?? 'INITIALIZING'}`]} delay={0.12} className="font-serif tracking-[0.1em] text-[11px] whitespace-nowrap" />
+                <TextRevealBlock
+                  lines={['LOADING PORTFOLIO']}
+                  delay={0.02}
+                  className="font-serif font-semibold tracking-[0.08em] text-[clamp(11px,3vw,14px)] whitespace-nowrap sm:tracking-[0.14em]"
+                />
+                <TextRevealBlock
+                  lines={[`MODULE: ${selectedLabel ?? 'INITIALIZING'}`]}
+                  delay={0.12}
+                  className="font-serif tracking-[0.05em] text-[clamp(9px,2.4vw,11px)] whitespace-nowrap sm:tracking-[0.1em]"
+                />
                 <div className="h-[4px] rounded-full bg-[#d9e2f0] overflow-hidden">
                   <motion.div
                     className="h-full bg-[#4d8ef5]"
@@ -271,10 +279,10 @@ const ConsoleRoom: React.FC<ConsoleRoomProps> = ({ onSelectCategory, interaction
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="absolute inset-x-[14%] top-[36%] pointer-events-none text-center text-[#5a6f91]"
+                className="absolute inset-x-[8%] top-[34%] pointer-events-none text-center text-[#5a6f91] sm:inset-x-[14%] sm:top-[36%]"
               >
                 {typingReady && (
-                  <div className="relative h-[90px] overflow-hidden">
+                  <div className="relative h-[76px] overflow-hidden sm:h-[90px]">
                     <AnimatePresence mode="wait">
                       <motion.div
                         key={`typing-cycle-${typingCycle}`}
@@ -287,7 +295,7 @@ const ConsoleRoom: React.FC<ConsoleRoomProps> = ({ onSelectCategory, interaction
                         <TextRevealBlock
                           lines={IDLE_LINES}
                           delay={0.2}
-                          className="font-serif tracking-[0.08em] leading-[1.5] text-[16px]"
+                          className="font-serif tracking-[0.03em] leading-[1.35] text-[clamp(10px,3.7vw,16px)] sm:tracking-[0.08em] sm:leading-[1.5]"
                         />
                       </motion.div>
                     </AnimatePresence>
