@@ -95,7 +95,7 @@ const Contact: React.FC<ContactProps> = ({ onBack }) => {
           animate="visible"
         >
           {/* Left: Heading */}
-          <div className="w-full max-w-[27rem] justify-self-center space-y-6 pl-[4.75rem] md:space-y-8 md:pl-0">
+          <div className="w-full max-w-[27rem] justify-self-start space-y-6 md:justify-self-center md:space-y-8">
             <motion.h1 
               variants={itemVariants}
               className="text-[clamp(3.25rem,14vw,4.75rem)] font-serif font-light leading-[0.92] tracking-tight md:text-8xl md:leading-none"
@@ -112,7 +112,7 @@ const Contact: React.FC<ContactProps> = ({ onBack }) => {
           </div>
 
           {/* Right: Links */}
-          <div className="w-full max-w-[30rem] justify-self-center space-y-10 md:space-y-12">
+          <div className="w-full max-w-[30rem] justify-self-start space-y-10 md:justify-self-center md:space-y-12">
              <motion.div variants={itemVariants} className="space-y-2">
                 <h3 className="text-xs font-mono uppercase tracking-widest text-white/40 mb-4">Email</h3>
                 <button
@@ -158,7 +158,7 @@ const Contact: React.FC<ContactProps> = ({ onBack }) => {
       {/* Footer */}
       <motion.div 
         variants={itemVariants}
-        className="relative z-10 pt-12 text-center text-xs font-mono text-white/20 md:text-left"
+        className="relative z-10 pt-12 text-left text-xs font-mono text-white/20"
       >
         Kaki Design Console © {new Date().getFullYear()}
       </motion.div>
