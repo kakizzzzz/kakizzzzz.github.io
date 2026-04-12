@@ -1,6 +1,7 @@
 import React from 'react';
 import { ProjectModuleData, ProjectModuleSection } from '../types';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+import { getMobileImageSource } from '../imageVariants';
 
 interface LongScrollCaseStudyProps {
   module: ProjectModuleData;
@@ -38,7 +39,7 @@ const LongScrollCaseStudy: React.FC<LongScrollCaseStudyProps> = ({ module }) => 
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[#796b58]">
-              ZCOOL-style Long Scroll
+              Long-Scroll Case Study
             </div>
             <h5 className="mt-1 text-2xl text-[#1a140d]">{module.title}</h5>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#5c5247]">{module.subtitle}</p>
@@ -83,6 +84,7 @@ const LongScrollCaseStudy: React.FC<LongScrollCaseStudyProps> = ({ module }) => 
                     >
                       <ImageWithFallback
                         src={image}
+                        mobileSrc={getMobileImageSource(image)}
                         alt={`${module.title} section ${section.title ?? 'image'} ${index + 1}`}
                         className={`mx-auto block h-auto w-auto max-w-full ${usePlainBoard ? '' : 'rounded-[16px]'}`}
                         loading="lazy"

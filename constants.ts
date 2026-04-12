@@ -125,7 +125,8 @@ export const PROJECTS: Record<ProjectCategory, ProjectData> = {
           {
             id: 'mao-dot-main',
             title: 'Brand Identity Board',
-            description: 'Updated PNG export used directly for a sharper long-scroll brand presentation.',
+            description:
+              'A continuous brand board that keeps the logo, packaging, and rollout materials readable in one uninterrupted flow.',
             images: [asset('/assets/full-branding/mao-dot-long.png')],
           },
         ],
@@ -386,7 +387,8 @@ export const PROJECTS: Record<ProjectCategory, ProjectData> = {
     ],
     tools: ['Photoshop', 'Illustrator', 'InDesign'],
     challenge: 'Present side projects with very different formats without flattening them into one generic layout.',
-    solution: 'Each work uses the presentation mode that suits it best: long-scroll for editorial boards, gallery view for posters, and a compact scroll sequence for Facai Illustration.',
+    solution:
+      'Each piece is shown in the format that fits it best, so posters, editorial boards, and illustration mockups all keep their own rhythm and readability.',
     modules: [
       {
         id: 'selected-works-2025',
@@ -400,7 +402,8 @@ export const PROJECTS: Record<ProjectCategory, ProjectData> = {
           {
             id: 'selected-works-board',
             title: 'Portfolio Board',
-            description: 'Updated PNG export for a sharper direct-scroll presentation.',
+            description:
+              'A single continuous board that lets the selection read like one curated spread instead of a disconnected slideshow.',
             images: [asset('/assets/additional/selected-works-2025/selected-works-long.png')],
           },
         ],
@@ -430,7 +433,8 @@ export const PROJECTS: Record<ProjectCategory, ProjectData> = {
           {
             id: 'facai-illustration-series',
             title: 'Project Sequence',
-            description: 'Character visuals and product-style mockups presented as a compact scrollable case sequence.',
+            description:
+              'Character artwork and extension mockups arranged in one concise sequence so the project stays easy to follow on screen.',
             images: [
               asset('/assets/additional/facai-illustration/board-01.jpeg'),
               asset('/assets/additional/facai-illustration/board-02.jpeg'),

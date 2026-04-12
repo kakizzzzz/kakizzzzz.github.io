@@ -5,6 +5,7 @@ type NativeImageProps = React.ComponentPropsWithoutRef<'img'>
 
 interface ImageWithFallbackProps extends NativeImageProps {
   loadingEffect?: LoadingEffect
+  mobileSrc?: string
 }
 
 // Use backticks to safely handle the long base64 string and prevent newline syntax errors
@@ -24,6 +25,7 @@ export function ImageWithFallback(props: ImageWithFallbackProps) {
     loading = 'lazy',
     decoding = 'async',
     loadingEffect = 'static',
+    mobileSrc,
     ...rest
   } = props
 
@@ -60,16 +62,19 @@ export function ImageWithFallback(props: ImageWithFallbackProps) {
       </div>
     </div>
   ) : (
-    <img
-      src={src}
-      alt={alt}
-      className={`${className ?? ''} ${loadingClassName}`.trim()}
-      style={style}
-      loading={loading}
-      decoding={decoding}
-      {...rest}
-      onError={handleError}
-      onLoad={handleLoad}
-    />
+    <picture>
+      {mobileSrc && <source media="(max-width: 768px)" srcSet={mobileSrc} />}
+      <img
+        src={src}
+        alt={alt}
+        className={`${className ?? ''} ${loadingClassName}`.trim()}
+        style={style}
+        loading={loading}
+        decoding={decoding}
+        {...rest}
+        onError={handleError}
+        onLoad={handleLoad}
+      />
+    </picture>
   )
 }

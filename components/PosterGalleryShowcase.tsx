@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ProjectModuleData } from '../types';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+import { getMobileImageSource } from '../imageVariants';
 
 interface PosterGalleryShowcaseProps {
   module: ProjectModuleData;
@@ -48,6 +49,7 @@ const PosterGalleryShowcase: React.FC<PosterGalleryShowcaseProps> = ({ module })
             >
               <ImageWithFallback
                 src={image}
+                mobileSrc={getMobileImageSource(image)}
                 alt={`${module.title} thumbnail ${index + 1}`}
                 className="h-[96px] w-[72px] object-cover"
                 loading="lazy"
@@ -62,6 +64,7 @@ const PosterGalleryShowcase: React.FC<PosterGalleryShowcaseProps> = ({ module })
           <div className="rounded-[26px] bg-[#f7f2ea] p-4 shadow-[0_18px_42px_rgba(52,35,18,0.12)] md:p-6">
             <ImageWithFallback
               src={activeImage}
+              mobileSrc={getMobileImageSource(activeImage)}
               alt={`${module.title} poster ${activeImageIndex + 1}`}
               className="mx-auto block h-auto max-h-[76vh] w-full max-w-[720px] object-contain"
               loading="lazy"

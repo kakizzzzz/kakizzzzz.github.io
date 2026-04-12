@@ -13,6 +13,7 @@ import {
   Store,
 } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+import { getMobileImageSource } from '../imageVariants';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -348,6 +349,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onBack }) => {
         <div className="absolute inset-0 -z-20">
           <ImageWithFallback
             src={project.heroImage}
+            mobileSrc={getMobileImageSource(project.heroImage)}
             alt={`${project.title} hero`}
             className="w-full h-full object-cover opacity-25"
             loading="eager"
@@ -405,6 +407,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onBack }) => {
                         <div className="h-[148px] w-full overflow-hidden bg-[#0d1524]">
                           <ImageWithFallback
                             src={module.cover ?? ''}
+                            mobileSrc={getMobileImageSource(module.cover)}
                             alt={module.title}
                             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                             loading="lazy"

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ProjectModuleData } from '../types';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+import { getMobileImageSource } from '../imageVariants';
 
 interface AmazonProductShowcaseProps {
   module: ProjectModuleData;
@@ -93,6 +94,7 @@ const AmazonProductShowcase: React.FC<AmazonProductShowcaseProps> = ({ module })
               >
                 <ImageWithFallback
                   src={activeImage}
+                  mobileSrc={getMobileImageSource(activeImage)}
                   alt={`${module.title} preview ${activeImageIndex + 1}`}
                   className="mx-auto block h-auto w-full max-w-[720px] object-contain"
                   loading="lazy"
@@ -182,6 +184,7 @@ const AmazonProductShowcase: React.FC<AmazonProductShowcaseProps> = ({ module })
                 <div key={`${module.id}-detail-${index}`} className="overflow-hidden rounded-[24px] border border-[#d5d9d9] bg-white p-2 md:p-3">
                   <ImageWithFallback
                     src={image}
+                    mobileSrc={getMobileImageSource(image)}
                     alt={`${module.title} detail ${index + 1}`}
                     className="block w-full rounded-[18px] object-cover"
                     loading="lazy"
