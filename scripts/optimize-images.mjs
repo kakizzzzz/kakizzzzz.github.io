@@ -69,42 +69,35 @@ const SIMPLE_VARIANTS = [
   },
 ];
 
-const TILED_VARIANTS = [
+const LONG_SCROLL_MOBILE_VARIANTS = [
   {
     input: 'public/assets/graphic/feline-blessing-long.png',
-    outputPrefix: 'public/assets/graphic/feline-blessing-long-part',
-    tileHeight: 8000,
-    mobileWidth: 1000,
+    mobileOutput: 'public/assets/graphic/feline-blessing-long-mobile.webp',
+    mobileWidth: 1100,
   },
   {
     input: 'public/assets/graphic/realm-of-wind-chasers-long.png',
-    outputPrefix: 'public/assets/graphic/realm-of-wind-chasers-long-part',
-    tileHeight: 8000,
-    mobileWidth: 1000,
+    mobileOutput: 'public/assets/graphic/realm-of-wind-chasers-long-mobile.webp',
+    mobileWidth: 1100,
   },
   {
     input: 'public/assets/graphic/tidal-oath-long.png',
-    outputPrefix: 'public/assets/graphic/tidal-oath-long-part',
-    tileHeight: 8000,
-    mobileWidth: 1000,
+    mobileOutput: 'public/assets/graphic/tidal-oath-long-mobile.webp',
+    mobileWidth: 1100,
   },
   {
     input: 'public/assets/full-branding/mao-dot-long.png',
-    outputPrefix: 'public/assets/full-branding/mao-dot-long-part',
-    tileHeight: 8000,
-    mobileWidth: 1000,
+    mobileOutput: 'public/assets/full-branding/mao-dot-long-mobile.webp',
+    mobileWidth: 1100,
   },
   {
     input: 'public/assets/additional/selected-works-2025/selected-works-long.png',
-    outputPrefix: 'public/assets/additional/selected-works-2025/selected-works-long-part',
-    tileHeight: 8000,
-    mobileWidth: 1000,
+    mobileOutput: 'public/assets/additional/selected-works-2025/selected-works-long-mobile.webp',
+    mobileWidth: 1100,
   },
 ];
 
 const resolveFromRoot = (relativePath) => path.resolve(rootDir, relativePath);
-
-const formatPartNumber = (index) => String(index).padStart(2, '0');
 
 const ensureDirectory = async (filePath) => {
   await fs.mkdir(path.dirname(filePath), { recursive: true });
@@ -132,55 +125,22 @@ const processSimpleVariant = async (variant) => {
   console.log(`optimized ${variant.input}`);
 };
 
-const removeStaleTileOutputs = async (prefixPath) => {
-  const directory = path.dirname(prefixPath);
-  const basename = path.basename(prefixPath);
-  const files = await fs.readdir(directory);
-
-  await Promise.all(
-    files
-      .filter((file) => file.startsWith(`${basename}-`) && file.endsWith('.webp'))
-      .map((file) => fs.rm(path.join(directory, file))),
-  );
-};
-
-const processTiledVariant = async (variant) => {
+const processLongScrollMobileVariant = async (variant) => {
   const inputPath = resolveFromRoot(variant.input);
-  const outputPrefixPath = resolveFromRoot(variant.outputPrefix);
+  const mobileOutputPath = resolveFromRoot(variant.mobileOutput);
   const metadata = await sharp(inputPath).metadata();
 
   if (!metadata.width || !metadata.height) {
     throw new Error(`Could not read dimensions for ${variant.input}`);
   }
 
-  await ensureDirectory(outputPrefixPath);
-  await removeStaleTileOutputs(outputPrefixPath);
-
-  const sliceCount = Math.ceil(metadata.height / variant.tileHeight);
   const mobileWidth = Math.min(variant.mobileWidth, metadata.width);
+  await writeLosslessWebp(
+    sharp(inputPath).resize({ width: mobileWidth, withoutEnlargement: true }),
+    mobileOutputPath,
+  );
 
-  for (let index = 0; index < sliceCount; index += 1) {
-    const top = index * variant.tileHeight;
-    const height = Math.min(variant.tileHeight, metadata.height - top);
-    const partNumber = formatPartNumber(index + 1);
-    const desktopOutputPath = `${outputPrefixPath}-${partNumber}.webp`;
-    const mobileOutputPath = `${outputPrefixPath}-${partNumber}-mobile.webp`;
-
-    const extracted = sharp(inputPath).extract({
-      left: 0,
-      top,
-      width: metadata.width,
-      height,
-    });
-
-    await writeLosslessWebp(extracted.clone(), desktopOutputPath);
-    await writeLosslessWebp(
-      extracted.resize({ width: mobileWidth, withoutEnlargement: true }),
-      mobileOutputPath,
-    );
-  }
-
-  console.log(`tiled ${variant.input} into ${sliceCount} parts`);
+  console.log(`optimized long mobile ${variant.input}`);
 };
 
 const main = async () => {
@@ -188,8 +148,8 @@ const main = async () => {
     await processSimpleVariant(variant);
   }
 
-  for (const variant of TILED_VARIANTS) {
-    await processTiledVariant(variant);
+  for (const variant of LONG_SCROLL_MOBILE_VARIANTS) {
+    await processLongScrollMobileVariant(variant);
   }
 };
 

@@ -2,10 +2,6 @@ import { ProjectCategory, ProjectData } from './types';
 
 const BASE_PATH = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
 const asset = (pathname: string) => `${BASE_PATH}${pathname}`;
-const assetParts = (pathnamePrefix: string, count: number, extension = 'webp') =>
-  Array.from({ length: count }, (_, index) =>
-    asset(`${pathnamePrefix}-${String(index + 1).padStart(2, '0')}.${extension}`),
-  );
 
 const storageBinsGallery = Array.from({ length: 9 }, (_, index) =>
   asset(`/assets/amazon/storage-bins/gallery-${String(index + 1).padStart(2, '0')}.png`),
@@ -29,12 +25,7 @@ const dogCollar2Gallery = [
     asset(`/assets/amazon/dog-collar-2/gallery-${String(index + 2).padStart(2, '0')}.jpg`),
   ),
 ];
-
-const felineBlessingLongParts = assetParts('/assets/graphic/feline-blessing-long-part', 3);
-const realmOfWindChasersLongParts = assetParts('/assets/graphic/realm-of-wind-chasers-long-part', 4);
-const tidalOathLongParts = assetParts('/assets/graphic/tidal-oath-long-part', 4);
-const maoDotLongParts = assetParts('/assets/full-branding/mao-dot-long-part', 7);
-const selectedWorksLongParts = assetParts('/assets/additional/selected-works-2025/selected-works-long-part', 5);
+const selectedWorksBoardPreview = asset('/assets/additional/selected-works-2025/selected-works-long-part-01.webp');
 
 export const PROJECTS: Record<ProjectCategory, ProjectData> = {
   [ProjectCategory.GRAPHIC]: {
@@ -72,7 +63,7 @@ export const PROJECTS: Record<ProjectCategory, ProjectData> = {
             id: 'feline-blessing-board',
             title: 'Pattern Board',
             flow: 'continuous',
-            images: felineBlessingLongParts,
+            images: [asset('/assets/graphic/feline-blessing-long.png')],
           },
         ],
       },
@@ -88,7 +79,7 @@ export const PROJECTS: Record<ProjectCategory, ProjectData> = {
             id: 'realm-of-wind-chasers-board',
             title: 'Pattern Board',
             flow: 'continuous',
-            images: realmOfWindChasersLongParts,
+            images: [asset('/assets/graphic/realm-of-wind-chasers-long.png')],
           },
         ],
       },
@@ -104,7 +95,7 @@ export const PROJECTS: Record<ProjectCategory, ProjectData> = {
             id: 'tidal-oath-board',
             title: 'Pattern Board',
             flow: 'continuous',
-            images: tidalOathLongParts,
+            images: [asset('/assets/graphic/tidal-oath-long.png')],
           },
         ],
       },
@@ -117,7 +108,7 @@ export const PROJECTS: Record<ProjectCategory, ProjectData> = {
     description: 'A complete coffee brand system presented as one continuous editorial board.',
     client: 'Self-Initiated Coffee Brand',
     heroImage: asset('/assets/full-branding/mao-dot-cover.webp'),
-    images: maoDotLongParts,
+    images: [asset('/assets/full-branding/mao-dot-cover.webp')],
     skills: [
       { name: 'Brand System', value: 95 },
       { name: 'Art Direction', value: 93 },
@@ -141,7 +132,7 @@ export const PROJECTS: Record<ProjectCategory, ProjectData> = {
             flow: 'continuous',
             description:
               'A continuous brand board that keeps the logo, packaging, and rollout materials readable in one uninterrupted flow.',
-            images: maoDotLongParts,
+            images: [asset('/assets/full-branding/mao-dot-long.png')],
           },
         ],
       },
@@ -388,7 +379,7 @@ export const PROJECTS: Record<ProjectCategory, ProjectData> = {
     client: 'Independent Design Projects',
     heroImage: asset('/assets/additional/human-machine-relationship/poster-01.webp'),
     images: [
-      selectedWorksLongParts[0],
+      selectedWorksBoardPreview,
       asset('/assets/additional/human-machine-relationship/poster-01.webp'),
       asset('/assets/additional/human-machine-relationship/poster-02.webp'),
       asset('/assets/additional/facai-illustration/board-01.jpeg'),
@@ -411,7 +402,7 @@ export const PROJECTS: Record<ProjectCategory, ProjectData> = {
         display: 'long-scroll',
         boardFrame: 'plain',
         loadingEffect: 'none',
-        cover: selectedWorksLongParts[0],
+        cover: selectedWorksBoardPreview,
         sections: [
           {
             id: 'selected-works-board',
@@ -419,7 +410,7 @@ export const PROJECTS: Record<ProjectCategory, ProjectData> = {
             flow: 'continuous',
             description:
               'A single continuous board that lets the selection read like one curated spread instead of a disconnected slideshow.',
-            images: selectedWorksLongParts,
+            images: [asset('/assets/additional/selected-works-2025/selected-works-long.png')],
           },
         ],
       },
