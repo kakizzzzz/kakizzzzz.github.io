@@ -2,6 +2,10 @@ import { ProjectCategory, ProjectData } from './types';
 
 const BASE_PATH = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
 const asset = (pathname: string) => `${BASE_PATH}${pathname}`;
+const assetParts = (pathnamePrefix: string, count: number, extension = 'webp') =>
+  Array.from({ length: count }, (_, index) =>
+    asset(`${pathnamePrefix}-${String(index + 1).padStart(2, '0')}.${extension}`),
+  );
 
 const storageBinsGallery = Array.from({ length: 9 }, (_, index) =>
   asset(`/assets/amazon/storage-bins/gallery-${String(index + 1).padStart(2, '0')}.png`),
@@ -26,6 +30,12 @@ const dogCollar2Gallery = [
   ),
 ];
 
+const felineBlessingLongParts = assetParts('/assets/graphic/feline-blessing-long-part', 3);
+const realmOfWindChasersLongParts = assetParts('/assets/graphic/realm-of-wind-chasers-long-part', 4);
+const tidalOathLongParts = assetParts('/assets/graphic/tidal-oath-long-part', 4);
+const maoDotLongParts = assetParts('/assets/full-branding/mao-dot-long-part', 7);
+const selectedWorksLongParts = assetParts('/assets/additional/selected-works-2025/selected-works-long-part', 5);
+
 export const PROJECTS: Record<ProjectCategory, ProjectData> = {
   [ProjectCategory.GRAPHIC]: {
     id: 'graphic-01',
@@ -33,11 +43,11 @@ export const PROJECTS: Record<ProjectCategory, ProjectData> = {
     title: 'Pattern Design Collection',
     description: 'Three themed pattern projects presented as continuous long-form boards.',
     client: 'Self-Initiated Pattern Project',
-    heroImage: asset('/assets/graphic/realm-of-wind-chasers-cover.png'),
+    heroImage: asset('/assets/graphic/realm-of-wind-chasers-cover.webp'),
     images: [
-      asset('/assets/graphic/feline-blessing-cover.png'),
-      asset('/assets/graphic/realm-of-wind-chasers-cover.png'),
-      asset('/assets/graphic/tidal-oath-cover.png'),
+      asset('/assets/graphic/feline-blessing-cover.webp'),
+      asset('/assets/graphic/realm-of-wind-chasers-cover.webp'),
+      asset('/assets/graphic/tidal-oath-cover.webp'),
     ],
     skills: [
       { name: 'Pattern System', value: 96 },
@@ -56,12 +66,12 @@ export const PROJECTS: Record<ProjectCategory, ProjectData> = {
         subtitle: 'Chapter 01 / Feline Motif Pattern',
         display: 'long-scroll',
         boardFrame: 'plain',
-        cover: asset('/assets/graphic/feline-blessing-cover.png'),
+        cover: asset('/assets/graphic/feline-blessing-cover.webp'),
         sections: [
           {
             id: 'feline-blessing-board',
             title: 'Pattern Board',
-            images: [asset('/assets/graphic/feline-blessing-long.png')],
+            images: felineBlessingLongParts,
           },
         ],
       },
@@ -71,12 +81,12 @@ export const PROJECTS: Record<ProjectCategory, ProjectData> = {
         subtitle: 'Chapter 02 / Scenic Pattern Collection',
         display: 'long-scroll',
         boardFrame: 'plain',
-        cover: asset('/assets/graphic/realm-of-wind-chasers-cover.png'),
+        cover: asset('/assets/graphic/realm-of-wind-chasers-cover.webp'),
         sections: [
           {
             id: 'realm-of-wind-chasers-board',
             title: 'Pattern Board',
-            images: [asset('/assets/graphic/realm-of-wind-chasers-long.png')],
+            images: realmOfWindChasersLongParts,
           },
         ],
       },
@@ -86,12 +96,12 @@ export const PROJECTS: Record<ProjectCategory, ProjectData> = {
         subtitle: 'Chapter 03 / Marine Motif Pattern',
         display: 'long-scroll',
         boardFrame: 'plain',
-        cover: asset('/assets/graphic/tidal-oath-cover.png'),
+        cover: asset('/assets/graphic/tidal-oath-cover.webp'),
         sections: [
           {
             id: 'tidal-oath-board',
             title: 'Pattern Board',
-            images: [asset('/assets/graphic/tidal-oath-long.png')],
+            images: tidalOathLongParts,
           },
         ],
       },
@@ -103,8 +113,8 @@ export const PROJECTS: Record<ProjectCategory, ProjectData> = {
     title: 'Brand Identity Case Study',
     description: 'A complete coffee brand system presented as one continuous editorial board.',
     client: 'Self-Initiated Coffee Brand',
-    heroImage: asset('/assets/full-branding/mao-dot-cover.png'),
-    images: [asset('/assets/full-branding/mao-dot-long.png')],
+    heroImage: asset('/assets/full-branding/mao-dot-cover.webp'),
+    images: maoDotLongParts,
     skills: [
       { name: 'Brand System', value: 95 },
       { name: 'Art Direction', value: 93 },
@@ -120,14 +130,14 @@ export const PROJECTS: Record<ProjectCategory, ProjectData> = {
         title: 'MAO DOT',
         subtitle: 'Coffee Brand Identity / Long-form case study',
         display: 'long-scroll',
-        cover: asset('/assets/full-branding/mao-dot-cover.png'),
+        cover: asset('/assets/full-branding/mao-dot-cover.webp'),
         sections: [
           {
             id: 'mao-dot-main',
             title: 'Brand Identity Board',
             description:
               'A continuous brand board that keeps the logo, packaging, and rollout materials readable in one uninterrupted flow.',
-            images: [asset('/assets/full-branding/mao-dot-long.png')],
+            images: maoDotLongParts,
           },
         ],
       },
@@ -286,7 +296,7 @@ export const PROJECTS: Record<ProjectCategory, ProjectData> = {
             'The detail page below continues the smart-collar story with modes, waterproofing, and sizing information.',
           ],
           galleryImages: dogCollarGallery,
-          detailImages: [asset('/assets/amazon/dog-collar/detail-long.png')],
+          detailImages: [asset('/assets/amazon/dog-collar/detail-long.webp')],
         },
       },
       {
@@ -336,7 +346,7 @@ export const PROJECTS: Record<ProjectCategory, ProjectData> = {
             'The composition balances lifestyle utility shots with labeled product benefits.',
           ],
           galleryImages: storageBinsGallery,
-          detailImages: [asset('/assets/amazon/storage-bins/detail-long.png')],
+          detailImages: [asset('/assets/amazon/storage-bins/detail-long.webp')],
         },
       },
       {
@@ -361,7 +371,7 @@ export const PROJECTS: Record<ProjectCategory, ProjectData> = {
             'The long detail board remains fully visible in the same continuous scroll flow.',
           ],
           galleryImages: storageBins2Gallery,
-          detailImages: [asset('/assets/amazon/storage-bins-2/detail-long.png')],
+          detailImages: [asset('/assets/amazon/storage-bins-2/detail-long.webp')],
         },
       },
     ],
@@ -372,11 +382,11 @@ export const PROJECTS: Record<ProjectCategory, ProjectData> = {
     title: 'Selected Additional Works',
     description: 'Editorial boards, poster studies, and illustration-based side projects.',
     client: 'Independent Design Projects',
-    heroImage: asset('/assets/additional/human-machine-relationship/poster-01.png'),
+    heroImage: asset('/assets/additional/human-machine-relationship/poster-01.webp'),
     images: [
-      asset('/assets/additional/selected-works-2025/selected-works-long.png'),
-      asset('/assets/additional/human-machine-relationship/poster-01.png'),
-      asset('/assets/additional/human-machine-relationship/poster-02.png'),
+      selectedWorksLongParts[0],
+      asset('/assets/additional/human-machine-relationship/poster-01.webp'),
+      asset('/assets/additional/human-machine-relationship/poster-02.webp'),
       asset('/assets/additional/facai-illustration/board-01.jpeg'),
     ],
     skills: [
@@ -397,14 +407,14 @@ export const PROJECTS: Record<ProjectCategory, ProjectData> = {
         display: 'long-scroll',
         boardFrame: 'plain',
         loadingEffect: 'none',
-        cover: asset('/assets/additional/selected-works-2025/selected-works-long.png'),
+        cover: selectedWorksLongParts[0],
         sections: [
           {
             id: 'selected-works-board',
             title: 'Portfolio Board',
             description:
               'A single continuous board that lets the selection read like one curated spread instead of a disconnected slideshow.',
-            images: [asset('/assets/additional/selected-works-2025/selected-works-long.png')],
+            images: selectedWorksLongParts,
           },
         ],
       },
@@ -414,11 +424,11 @@ export const PROJECTS: Record<ProjectCategory, ProjectData> = {
         subtitle: 'Poster series / three-image gallery',
         display: 'gallery',
         loadingEffect: 'none',
-        cover: asset('/assets/additional/human-machine-relationship/poster-01.png'),
+        cover: asset('/assets/additional/human-machine-relationship/poster-01.webp'),
         images: [
-          asset('/assets/additional/human-machine-relationship/poster-01.png'),
-          asset('/assets/additional/human-machine-relationship/poster-02.png'),
-          asset('/assets/additional/human-machine-relationship/poster-03.png'),
+          asset('/assets/additional/human-machine-relationship/poster-01.webp'),
+          asset('/assets/additional/human-machine-relationship/poster-02.webp'),
+          asset('/assets/additional/human-machine-relationship/poster-03.webp'),
         ],
       },
       {
