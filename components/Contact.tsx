@@ -13,6 +13,10 @@ const Contact: React.FC<ContactProps> = ({ onBack }) => {
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied'>('idle');
 
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, []);
+
+  useEffect(() => {
     if (copyStatus !== 'copied') return;
 
     const timeoutId = window.setTimeout(() => {
@@ -63,7 +67,7 @@ const Contact: React.FC<ContactProps> = ({ onBack }) => {
   };
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-x-hidden bg-black px-8 pb-[calc(env(safe-area-inset-bottom)+2rem)] pt-[calc(env(safe-area-inset-top)+7rem)] text-white md:p-16">
+    <div className="relative flex min-h-screen flex-col overflow-x-hidden bg-black px-6 pb-[calc(env(safe-area-inset-bottom)+4rem)] pt-[calc(env(safe-area-inset-top)+10rem)] text-white md:px-16 md:pb-16 md:pt-16">
       
       {/* Background Decor */}
       <div className="absolute top-0 right-0 w-[50vw] h-[50vw] bg-[#3b82f6]/10 blur-[120px] rounded-full pointer-events-none" />
@@ -75,26 +79,26 @@ const Contact: React.FC<ContactProps> = ({ onBack }) => {
         title="Return"
         className="fixed z-40 flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-black/50 text-white backdrop-blur-md transition-colors hover:bg-white hover:text-black"
         style={{
-          top: 'calc(env(safe-area-inset-top) + 6.5rem)',
-          left: 'calc(env(safe-area-inset-left) + 2rem)',
+          top: 'calc(env(safe-area-inset-top) + 5.25rem)',
+          left: 'calc(env(safe-area-inset-left) + 1.5rem)',
         }}
       >
         <ArrowLeft size={16} />
       </button>
 
       {/* Main Content */}
-      <div className="relative z-10 flex flex-1 items-start justify-center pt-8 md:items-center md:pt-0">
+      <div className="relative z-10 flex flex-1 items-start justify-center md:items-center">
         <motion.div 
-          className="mx-auto grid w-full max-w-6xl grid-cols-1 items-start gap-12 md:grid-cols-[minmax(0,27rem)_minmax(0,30rem)] md:items-center md:justify-center md:gap-20"
+          className="mx-auto grid w-full max-w-6xl grid-cols-1 items-start gap-10 md:grid-cols-[minmax(0,27rem)_minmax(0,30rem)] md:items-center md:justify-center md:gap-20"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
           {/* Left: Heading */}
-          <div className="w-full max-w-[27rem] justify-self-center space-y-8">
+          <div className="w-full max-w-[27rem] justify-self-center space-y-6 md:space-y-8">
             <motion.h1 
               variants={itemVariants}
-              className="text-5xl font-serif font-light leading-none tracking-tight md:text-8xl"
+              className="text-[clamp(3.25rem,14vw,4.75rem)] font-serif font-light leading-[0.92] tracking-tight md:text-8xl md:leading-none"
             >
               Let's<br/>
               <span className="text-[#3b82f6]">Connect.</span>
@@ -108,7 +112,7 @@ const Contact: React.FC<ContactProps> = ({ onBack }) => {
           </div>
 
           {/* Right: Links */}
-          <div className="w-full max-w-[30rem] justify-self-center space-y-12">
+          <div className="w-full max-w-[30rem] justify-self-center space-y-10 md:space-y-12">
              <motion.div variants={itemVariants} className="space-y-2">
                 <h3 className="text-xs font-mono uppercase tracking-widest text-white/40 mb-4">Email</h3>
                 <button
@@ -154,7 +158,7 @@ const Contact: React.FC<ContactProps> = ({ onBack }) => {
       {/* Footer */}
       <motion.div 
         variants={itemVariants}
-        className="relative z-10 text-center md:text-left pt-12 text-white/20 text-xs font-mono"
+        className="relative z-10 pt-12 text-center text-xs font-mono text-white/20 md:text-left"
       >
         Kaki Design Console © {new Date().getFullYear()}
       </motion.div>

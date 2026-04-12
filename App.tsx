@@ -328,8 +328,7 @@ const App: React.FC = () => {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.8 }}
-                    className="fixed inset-0 z-40 overflow-y-auto bg-black touch-pan-y overscroll-y-contain"
-                    data-lenis-prevent
+                    className="relative z-40 bg-black"
                 >
                     <Suspense fallback={<RouteFallback label="Loading Contact" fixed />}>
                         <Contact onBack={handleBack} />
