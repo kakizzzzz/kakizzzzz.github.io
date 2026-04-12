@@ -145,7 +145,7 @@ const Contact: React.FC<ContactProps> = ({ onBack }) => {
                 </p>
              </motion.div>
 
-             <motion.div variants={itemVariants} className="pt-4">
+             <motion.div variants={itemVariants} className="mb-[22vh] min-h-28 pt-4 md:mb-0 md:min-h-0">
                 <div className="inline-block px-4 py-2 bg-[#111] rounded border border-white/10">
                    <span className="w-2 h-2 bg-green-500 rounded-full inline-block mr-2 animate-pulse"></span>
                    <span className="text-xs text-white/70">Available for freelance</span>
