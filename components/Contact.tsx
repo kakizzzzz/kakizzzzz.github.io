@@ -155,7 +155,7 @@ const Contact: React.FC<ContactProps> = ({ onBack }) => {
         </motion.div>
       </div>
 
-      <div className="relative z-10 space-y-5 pb-[calc(env(safe-area-inset-bottom)+1.75rem)] pt-10 md:hidden">
+      <div className="relative z-10 mt-auto space-y-4 pb-[calc(env(safe-area-inset-bottom)+1.75rem)] pt-10 md:hidden">
         <motion.div variants={itemVariants}>
           <div className="inline-block rounded border border-white/10 bg-[#111] px-4 py-2">
             <span className="mr-2 inline-block h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
