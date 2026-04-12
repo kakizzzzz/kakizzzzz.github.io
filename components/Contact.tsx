@@ -109,6 +109,13 @@ const Contact: React.FC<ContactProps> = ({ onBack }) => {
             >
               Always interested in discussing new projects, creative collaborations, or just sharing design stories.
             </motion.p>
+
+            <motion.div variants={itemVariants} className="pt-2 md:hidden">
+              <div className="inline-block rounded border border-white/10 bg-[#111] px-4 py-2">
+                <span className="mr-2 inline-block h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
+                <span className="text-xs text-white/70">Available for freelance</span>
+              </div>
+            </motion.div>
           </div>
 
           {/* Right: Links */}
@@ -145,7 +152,7 @@ const Contact: React.FC<ContactProps> = ({ onBack }) => {
                 </p>
              </motion.div>
 
-             <motion.div variants={itemVariants} className="mb-[22vh] min-h-28 pt-4 md:mb-0 md:min-h-0">
+             <motion.div variants={itemVariants} className="hidden pt-4 md:block">
                 <div className="inline-block px-4 py-2 bg-[#111] rounded border border-white/10">
                    <span className="w-2 h-2 bg-green-500 rounded-full inline-block mr-2 animate-pulse"></span>
                    <span className="text-xs text-white/70">Available for freelance</span>
@@ -163,7 +170,7 @@ const Contact: React.FC<ContactProps> = ({ onBack }) => {
         Kaki Design Console © {new Date().getFullYear()}
       </motion.div>
 
-      <div aria-hidden="true" className="relative z-10 h-[24vh] min-h-28 md:hidden" />
+      <div aria-hidden="true" className="relative z-10 h-[16vh] min-h-20 md:hidden" />
 
     </div>
   );
