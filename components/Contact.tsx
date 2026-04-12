@@ -67,7 +67,7 @@ const Contact: React.FC<ContactProps> = ({ onBack }) => {
   };
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-x-hidden bg-black px-6 pb-[calc(env(safe-area-inset-bottom)+4rem)] pt-[calc(env(safe-area-inset-top)+10rem)] text-white md:px-16 md:pb-16 md:pt-16">
+    <div className="relative flex min-h-screen flex-col overflow-x-hidden bg-black px-6 pb-[calc(env(safe-area-inset-bottom)+6rem)] pt-[calc(env(safe-area-inset-top)+12rem)] text-white md:px-16 md:pb-16 md:pt-16">
       
       {/* Background Decor */}
       <div className="absolute top-0 right-0 w-[50vw] h-[50vw] bg-[#3b82f6]/10 blur-[120px] rounded-full pointer-events-none" />
@@ -87,15 +87,15 @@ const Contact: React.FC<ContactProps> = ({ onBack }) => {
       </button>
 
       {/* Main Content */}
-      <div className="relative z-10 flex flex-1 items-start justify-center md:items-center">
+      <div className="relative z-10 flex flex-1 items-start justify-center pt-4 md:items-center md:pt-0">
         <motion.div 
-          className="mx-auto grid w-full max-w-6xl grid-cols-1 items-start gap-10 md:grid-cols-[minmax(0,27rem)_minmax(0,30rem)] md:items-center md:justify-center md:gap-20"
+          className="mx-auto grid w-full max-w-6xl grid-cols-1 items-start gap-14 md:grid-cols-[minmax(0,27rem)_minmax(0,30rem)] md:items-center md:justify-center md:gap-20"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
           {/* Left: Heading */}
-          <div className="w-full max-w-[27rem] justify-self-center space-y-6 md:space-y-8">
+          <div className="w-full max-w-[27rem] justify-self-center space-y-6 pl-[4.75rem] md:space-y-8 md:pl-0">
             <motion.h1 
               variants={itemVariants}
               className="text-[clamp(3.25rem,14vw,4.75rem)] font-serif font-light leading-[0.92] tracking-tight md:text-8xl md:leading-none"
@@ -105,7 +105,7 @@ const Contact: React.FC<ContactProps> = ({ onBack }) => {
             </motion.h1>
             <motion.p 
               variants={itemVariants}
-              className="max-w-sm text-base font-light leading-relaxed text-white/60 md:text-xl"
+              className="max-w-[17rem] text-base font-light leading-relaxed text-white/60 md:max-w-sm md:text-xl"
             >
               Always interested in discussing new projects, creative collaborations, or just sharing design stories.
             </motion.p>
