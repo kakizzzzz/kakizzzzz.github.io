@@ -63,7 +63,7 @@ const Contact: React.FC<ContactProps> = ({ onBack }) => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white relative overflow-hidden flex flex-col p-8 md:p-16">
+    <div className="relative flex min-h-screen flex-col overflow-x-hidden bg-black px-8 pb-[calc(env(safe-area-inset-bottom)+2rem)] pt-[calc(env(safe-area-inset-top)+7rem)] text-white md:p-16">
       
       {/* Background Decor */}
       <div className="absolute top-0 right-0 w-[50vw] h-[50vw] bg-[#3b82f6]/10 blur-[120px] rounded-full pointer-events-none" />
@@ -83,9 +83,9 @@ const Contact: React.FC<ContactProps> = ({ onBack }) => {
       </button>
 
       {/* Main Content */}
-      <div className="relative z-10 flex flex-1 items-center justify-center">
+      <div className="relative z-10 flex flex-1 items-start justify-center pt-8 md:items-center md:pt-0">
         <motion.div 
-          className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-16 md:grid-cols-[minmax(0,27rem)_minmax(0,30rem)] md:justify-center md:gap-20"
+          className="mx-auto grid w-full max-w-6xl grid-cols-1 items-start gap-12 md:grid-cols-[minmax(0,27rem)_minmax(0,30rem)] md:items-center md:justify-center md:gap-20"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
@@ -94,14 +94,14 @@ const Contact: React.FC<ContactProps> = ({ onBack }) => {
           <div className="w-full max-w-[27rem] justify-self-center space-y-8">
             <motion.h1 
               variants={itemVariants}
-              className="text-6xl md:text-8xl font-serif font-light tracking-tight leading-none"
+              className="text-5xl font-serif font-light leading-none tracking-tight md:text-8xl"
             >
               Let's<br/>
               <span className="text-[#3b82f6]">Connect.</span>
             </motion.h1>
             <motion.p 
               variants={itemVariants}
-              className="text-white/60 text-lg md:text-xl font-light leading-relaxed max-w-sm"
+              className="max-w-sm text-base font-light leading-relaxed text-white/60 md:text-xl"
             >
               Always interested in discussing new projects, creative collaborations, or just sharing design stories.
             </motion.p>
@@ -114,7 +114,7 @@ const Contact: React.FC<ContactProps> = ({ onBack }) => {
                 <button
                   type="button"
                   onClick={handleCopyEmail}
-                  className="block w-full break-all border-b border-white/10 pb-4 text-left text-3xl transition-colors hover:border-[#3b82f6] hover:text-[#3b82f6] md:text-4xl"
+                  className="block w-full break-all border-b border-white/10 pb-4 text-left text-2xl transition-colors hover:border-[#3b82f6] hover:text-[#3b82f6] md:text-4xl"
                   aria-label="Copy email address"
                   title="Copy email address"
                 >
@@ -131,7 +131,7 @@ const Contact: React.FC<ContactProps> = ({ onBack }) => {
                   href={xiaohongshuUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex w-full items-center justify-between border-b border-white/10 pb-4 text-left text-2xl transition-colors hover:border-[#3b82f6] hover:text-[#3b82f6] md:text-3xl"
+                  className="flex w-full items-center justify-between border-b border-white/10 pb-4 text-left text-xl transition-colors hover:border-[#3b82f6] hover:text-[#3b82f6] md:text-3xl"
                 >
                   <span>@Kaki</span>
                   <ArrowUpRight size={18} />

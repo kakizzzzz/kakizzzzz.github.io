@@ -143,7 +143,7 @@ const App: React.FC = () => {
     }
 
     setActiveCategory(null);
-    setScrollEnabled(route.view === 'journey');
+    setScrollEnabled(route.view === 'journey' || route.view === 'contact');
   }, []);
 
   const navigateToRoute = useCallback(
@@ -328,7 +328,8 @@ const App: React.FC = () => {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.8 }}
-                    className="fixed inset-0 z-40 bg-black overflow-y-auto"
+                    className="fixed inset-0 z-40 overflow-y-auto bg-black touch-pan-y overscroll-y-contain"
+                    data-lenis-prevent
                 >
                     <Suspense fallback={<RouteFallback label="Loading Contact" fixed />}>
                         <Contact onBack={handleBack} />
