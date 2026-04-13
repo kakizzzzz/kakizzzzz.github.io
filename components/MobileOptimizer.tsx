@@ -9,6 +9,8 @@ const MobileOptimizer: React.FC<MobileOptimizerProps> = ({ children }) => {
 
   useEffect(() => {
     const prevOverscrollBehavior = document.body.style.overscrollBehavior;
+    const visualViewport = window.visualViewport;
+    let rafId = 0;
 
     // Detect mobile device
     const checkMobile = () => {
@@ -23,17 +25,37 @@ const MobileOptimizer: React.FC<MobileOptimizerProps> = ({ children }) => {
 
     // Optimize viewport height for mobile browsers
     const setVH = () => {
-      const vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty("--vh", `${vh}px`);
+      if (rafId) {
+        window.cancelAnimationFrame(rafId);
+      }
+
+      rafId = window.requestAnimationFrame(() => {
+        const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+        const vh = viewportHeight * 0.01;
+
+        document.documentElement.style.setProperty("--vh", `${vh}px`);
+        document.documentElement.style.setProperty("--app-height", `${Math.round(viewportHeight)}px`);
+      });
     };
 
     setVH();
     window.addEventListener("resize", setVH);
+    window.addEventListener("orientationchange", setVH);
+    visualViewport?.addEventListener("resize", setVH);
+    visualViewport?.addEventListener("scroll", setVH);
 
     return () => {
+      if (rafId) {
+        window.cancelAnimationFrame(rafId);
+      }
       window.removeEventListener("resize", checkMobile);
       window.removeEventListener("resize", setVH);
+      window.removeEventListener("orientationchange", setVH);
+      visualViewport?.removeEventListener("resize", setVH);
+      visualViewport?.removeEventListener("scroll", setVH);
       document.body.style.overscrollBehavior = prevOverscrollBehavior;
+      document.documentElement.style.removeProperty("--vh");
+      document.documentElement.style.removeProperty("--app-height");
     };
   }, []);
 
@@ -51,6 +73,11 @@ const MobileOptimizer: React.FC<MobileOptimizerProps> = ({ children }) => {
           .h-screen {
             height: 100vh;
             height: calc(var(--vh, 1vh) * 100);
+          }
+
+          .min-h-screen {
+            min-height: 100vh;
+            min-height: calc(var(--vh, 1vh) * 100);
           }
 
           /* Disable text selection on interactive elements */

@@ -2,6 +2,7 @@ import path from 'path';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
 
 const normalizeBasePath = (value?: string) => {
   if (!value) return '/';
@@ -51,7 +52,66 @@ export default defineConfig({
       },
     },
   },
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    ViteImageOptimizer({
+      test: /\.(png|jpe?g|webp|avif|svg)$/i,
+      includePublic: true,
+      logStats: true,
+      cache: true,
+      cacheLocation: path.resolve(__dirname, '.vite-image-cache'),
+      // Keep full-length layout boards intact. This plugin only re-encodes assets;
+      // it does not tile or split images.
+      png: {
+        compressionLevel: 9,
+        quality: 100,
+        effort: 10,
+        palette: false,
+      },
+      jpeg: {
+        quality: 100,
+        progressive: true,
+        mozjpeg: true,
+      },
+      jpg: {
+        quality: 100,
+        progressive: true,
+        mozjpeg: true,
+      },
+      webp: {
+        lossless: true,
+        effort: 6,
+        alphaQuality: 100,
+      },
+      avif: {
+        lossless: true,
+        effort: 9,
+      },
+      svg: {
+        multipass: true,
+        plugins: [
+          {
+            name: 'preset-default',
+            params: {
+              overrides: {
+                cleanupIds: false,
+                convertPathData: false,
+                removeViewBox: false,
+              },
+            },
+          },
+          'sortAttrs',
+          {
+            name: 'addAttributesToSVGElement',
+            params: {
+              attributes: [{ xmlns: 'http://www.w3.org/2000/svg' }],
+            },
+          },
+        ],
+      },
+    }),
+  ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, '.'),

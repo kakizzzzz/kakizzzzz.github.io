@@ -19,6 +19,11 @@ const toNumericMotionValue = (value: unknown) => {
   return 0;
 };
 
+const getViewportHeight = () => {
+  if (typeof window === "undefined") return 0;
+  return Math.max(1, Math.round(window.visualViewport?.height ?? window.innerHeight));
+};
+
 // --- DRONE COMPONENT (Refactored) ---
 const Drone = ({ 
     positionStyle, 
@@ -362,23 +367,45 @@ const WoodenDoor = ({ openProgress }: { openProgress: MotionValue<number> }) => 
     );
 };
 
-const ImageStoreScene = ({ doorOpenProgress }: { doorOpenProgress: MotionValue<number> }) => {
+const ImageStoreScene = ({
+    doorOpenProgress,
+    viewportHeight,
+}: {
+    doorOpenProgress: MotionValue<number>;
+    viewportHeight?: number;
+}) => {
+    const roadHeight = viewportHeight ? `${Math.round(viewportHeight * 0.18)}px` : undefined;
+    const sidewalkHeight = viewportHeight ? `${Math.round(viewportHeight * 0.04)}px` : undefined;
+    const sidewalkTop = viewportHeight ? `${Math.round(viewportHeight * -0.04)}px` : undefined;
+    const treeLineBottom = viewportHeight ? `${Math.round(viewportHeight * 0.2)}px` : undefined;
+    const houseMarginBottom = viewportHeight ? `${Math.round(viewportHeight * 0.2)}px` : undefined;
+    const houseShadowBottom = viewportHeight ? `${Math.round(viewportHeight * 0.178)}px` : undefined;
+
     return (
         <div className="relative w-full h-full flex flex-col items-center justify-end">
             
             {/* --- ENVIRONMENT LAYER --- */}
             
             {/* 1. The Road (Full Width Horizontal) */}
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[210vw] h-[18vh] bg-[#3f526d] border-t-[4px] border-[#aab8c9] z-0">
+            <div
+                className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[210vw] h-[18vh] bg-[#3f526d] border-t-[4px] border-[#aab8c9] z-0"
+                style={{ height: roadHeight }}
+            >
                 {/* Road Markings */}
                 <div className="absolute top-[56%] left-0 w-full h-0 border-t-[1.5px] border-dashed border-yellow-300/34"></div>
                 
                 {/* Sidewalk Area */}
-                <div className="absolute top-[-4vh] left-0 w-full h-[4vh] bg-[#e6edf5] border-b border-[#d4dde8]"></div>
+                <div
+                    className="absolute top-[-4vh] left-0 w-full h-[4vh] bg-[#e6edf5] border-b border-[#d4dde8]"
+                    style={{ top: sidewalkTop, height: sidewalkHeight }}
+                ></div>
             </div>
 
             {/* 2. Trees Background (On Sidewalk) */}
-            <div className="absolute bottom-[20vh] left-1/2 -translate-x-1/2 w-[116vw] flex justify-between px-[4vw] pointer-events-none z-10">
+            <div
+                className="absolute bottom-[20vh] left-1/2 -translate-x-1/2 w-[116vw] flex justify-between px-[4vw] pointer-events-none z-10"
+                style={{ bottom: treeLineBottom }}
+            >
                 <Tree scale={0.9} delay={0.1} className="left-[10%]" />
                 <Tree scale={1.04} delay={0.2} className="left-[28%] hidden md:flex" />
                 <Tree scale={1.08} delay={0.3} className="right-[28%] hidden md:flex" />
@@ -386,11 +413,17 @@ const ImageStoreScene = ({ doorOpenProgress }: { doorOpenProgress: MotionValue<n
             </div>
 
             {/* House Contact Shadow */}
-            <div className="absolute bottom-[17.8vh] left-1/2 -translate-x-1/2 w-[360px] md:w-[480px] h-[18px] rounded-full bg-[#1b2c47]/22 blur-[8px] z-10" />
+            <div
+                className="absolute bottom-[17.8vh] left-1/2 -translate-x-1/2 w-[360px] md:w-[480px] h-[18px] rounded-full bg-[#1b2c47]/22 blur-[8px] z-10"
+                style={{ bottom: houseShadowBottom }}
+            />
 
             {/* --- HOUSE LAYER --- */}
             {/* Centered on top of sidewalk */}
-            <div className="relative z-20 mb-[20vh] w-[280px] h-[280px] md:w-[400px] md:h-[400px] origin-bottom">
+            <div
+                className="relative z-20 mb-[20vh] w-[280px] h-[280px] md:w-[400px] md:h-[400px] origin-bottom"
+                style={{ marginBottom: houseMarginBottom }}
+            >
                  {/* Main Building Block */}
                 <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-[70%] bg-[linear-gradient(165deg,#f9fbfe_0%,#eef3fa_66%,#e7eef7_100%)] rounded-sm overflow-hidden border border-[#dbe3ef] shadow-[0_10px_22px_rgba(41,62,94,0.15)]">
                     <div className="absolute inset-y-0 right-0 w-[12%] bg-[#e6edf7]/45" />
@@ -444,6 +477,7 @@ const Journey: React.FC<JourneyProps> = ({ onSelectCategory }) => {
   const profileImageSrc = `${(import.meta.env.BASE_URL || '/').replace(/\/$/, '')}/assets/profile/kaki-avatar-2.jpg`;
   const containerRef = useRef<HTMLDivElement>(null);
   const [cardsUnlocked, setCardsUnlocked] = useState(false);
+  const [viewportHeight, setViewportHeight] = useState(getViewportHeight);
   
   // Scroll sequence: title -> bio -> house / console
   const { scrollYProgress } = useScroll({
@@ -524,11 +558,58 @@ const Journey: React.FC<JourneyProps> = ({ onSelectCategory }) => {
   });
 
   useEffect(() => {
-    ScrollTrigger.refresh();
+    if (typeof window === "undefined") return;
+
+    let rafId = 0;
+    const visualViewport = window.visualViewport;
+
+    const syncViewportHeight = () => {
+      if (rafId) {
+        window.cancelAnimationFrame(rafId);
+      }
+
+      rafId = window.requestAnimationFrame(() => {
+        const nextHeight = getViewportHeight();
+        setViewportHeight((currentHeight) =>
+          Math.abs(currentHeight - nextHeight) > 1 ? nextHeight : currentHeight,
+        );
+      });
+    };
+
+    syncViewportHeight();
+    window.addEventListener("resize", syncViewportHeight, { passive: true });
+    window.addEventListener("orientationchange", syncViewportHeight);
+    visualViewport?.addEventListener("resize", syncViewportHeight);
+    visualViewport?.addEventListener("scroll", syncViewportHeight);
+
+    return () => {
+      if (rafId) {
+        window.cancelAnimationFrame(rafId);
+      }
+      window.removeEventListener("resize", syncViewportHeight);
+      window.removeEventListener("orientationchange", syncViewportHeight);
+      visualViewport?.removeEventListener("resize", syncViewportHeight);
+      visualViewport?.removeEventListener("scroll", syncViewportHeight);
+    };
   }, []);
 
+  useEffect(() => {
+    ScrollTrigger.refresh();
+  }, [viewportHeight]);
+
+  const stableViewportHeight = viewportHeight || getViewportHeight();
+  const rootHeightStyle = stableViewportHeight
+    ? { height: `${stableViewportHeight * 4}px` }
+    : undefined;
+  const stageHeightStyle = stableViewportHeight
+    ? { height: `${stableViewportHeight}px` }
+    : undefined;
+  const stageTwoStyle = stableViewportHeight
+    ? { top: `${stableViewportHeight}px`, height: `${stableViewportHeight}px` }
+    : undefined;
+
   return (
-    <div ref={containerRef} className="relative h-[400vh] w-full">
+    <div ref={containerRef} className="relative h-[400vh] w-full" style={rootHeightStyle}>
       
       {/* --- FIXED BACKGROUND LAYER (Sky & Clouds & Balloons) --- */}
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
@@ -602,7 +683,10 @@ const Journey: React.FC<JourneyProps> = ({ onSelectCategory }) => {
       {/* --- SCROLLABLE CONTENT STAGES --- */}
       
       {/* Stage 1: Title */}
-      <div className="absolute top-0 left-0 w-full h-screen flex items-center justify-center z-10 pointer-events-none">
+      <div
+        className="absolute top-0 left-0 w-full h-screen flex items-center justify-center z-10 pointer-events-none"
+        style={stageHeightStyle}
+      >
         <motion.div style={{ y: titleY, opacity: titleOpacity }} className="text-center px-4">
           <h1 className="text-[12vw] md:text-[14vw] font-serif font-bold text-[#f8fbff] tracking-tighter leading-none [-webkit-text-stroke:0.8px_#93c5fd] [paint-order:stroke_fill] [text-shadow:0_2px_10px_rgba(30,58,138,0.14)] select-none">
             PORTFOLIO
@@ -625,7 +709,10 @@ const Journey: React.FC<JourneyProps> = ({ onSelectCategory }) => {
       </div>
 
       {/* Stage 2: Bio */}
-      <div className="absolute top-[100vh] left-0 w-full h-screen flex items-center justify-center z-10 pointer-events-none">
+      <div
+        className="absolute top-[100vh] left-0 w-full h-screen flex items-center justify-center z-10 pointer-events-none"
+        style={stageTwoStyle}
+      >
          <motion.div 
             style={{ y: bioY, opacity: bioOpacity }} 
             className="max-w-5xl px-6 text-center translate-y-[1vh] md:translate-y-[2vh]"
@@ -693,7 +780,7 @@ const Journey: React.FC<JourneyProps> = ({ onSelectCategory }) => {
           style={{ scale: houseSceneScale, y: houseSceneY, opacity: houseSceneOpacity, transformOrigin: "50% 79%", willChange: "transform, opacity" }}
           className="w-full h-full relative"
         >
-          <ImageStoreScene doorOpenProgress={doorOpenProgress} />
+          <ImageStoreScene doorOpenProgress={doorOpenProgress} viewportHeight={stableViewportHeight} />
         </motion.div>
 
         <motion.div
