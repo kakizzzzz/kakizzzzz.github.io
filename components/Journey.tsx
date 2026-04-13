@@ -478,6 +478,7 @@ const ImageStoreScene = ({
 const Journey: React.FC<JourneyProps> = ({ onSelectCategory }) => {
   const profileImageSrc = asset('/assets/profile/kaki-avatar-2.jpg');
   const containerRef = useRef<HTMLDivElement>(null);
+  const stageSnapTimeoutRef = useRef<number | null>(null);
   const [cardsUnlocked, setCardsUnlocked] = useState(false);
   const [viewportHeight, setViewportHeight] = useState(getViewportHeight);
   const [isMobileViewport, setIsMobileViewport] = useState(() =>
@@ -623,10 +624,6 @@ const Journey: React.FC<JourneyProps> = ({ onSelectCategory }) => {
     };
   }, []);
 
-  useEffect(() => {
-    ScrollTrigger.refresh();
-  }, [viewportHeight]);
-
   const stableViewportHeight = viewportHeight || getViewportHeight();
   const rootHeightStyle = stableViewportHeight
     ? { height: `${stableViewportHeight * 4}px` }
@@ -637,6 +634,56 @@ const Journey: React.FC<JourneyProps> = ({ onSelectCategory }) => {
   const stageTwoStyle = stableViewportHeight
     ? { top: `${stableViewportHeight}px`, height: `${stableViewportHeight}px` }
     : undefined;
+
+  useEffect(() => {
+    ScrollTrigger.refresh();
+  }, [viewportHeight]);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !isMobileViewport || !stableViewportHeight) return;
+
+    const clearSnapLock = () => {
+      if (stageSnapTimeoutRef.current) {
+        window.clearTimeout(stageSnapTimeoutRef.current);
+        stageSnapTimeoutRef.current = null;
+      }
+    };
+
+    const lockSnap = () => {
+      clearSnapLock();
+      stageSnapTimeoutRef.current = window.setTimeout(() => {
+        stageSnapTimeoutRef.current = null;
+      }, 460);
+    };
+
+    const snapToSecondStage = () => {
+      if (stageSnapTimeoutRef.current) return;
+
+      const currentScroll = window.scrollY || document.documentElement.scrollTop || 0;
+      const firstStageLowerBound = stableViewportHeight * 0.1;
+      const firstStageUpperBound = stableViewportHeight * 1.02;
+
+      if (currentScroll < firstStageLowerBound || currentScroll > firstStageUpperBound) {
+        return;
+      }
+
+      lockSnap();
+      window.scrollTo({
+        top: stableViewportHeight,
+        left: 0,
+        behavior: 'smooth',
+      });
+    };
+
+    window.addEventListener("touchend", snapToSecondStage, { passive: true });
+    window.addEventListener("touchcancel", snapToSecondStage, { passive: true });
+
+    return () => {
+      clearSnapLock();
+      window.removeEventListener("touchend", snapToSecondStage);
+      window.removeEventListener("touchcancel", snapToSecondStage);
+    };
+  }, [isMobileViewport, stableViewportHeight]);
 
   return (
     <div ref={containerRef} className="relative h-[400vh] w-full" style={rootHeightStyle}>
