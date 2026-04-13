@@ -196,10 +196,9 @@ const ConsoleRoom: React.FC<ConsoleRoomProps> = ({ onSelectCategory, interaction
   const [typingReady, setTypingReady] = useState(false);
   const [typingCycle, setTypingCycle] = useState(0);
   const selectedLabel = selected ? CATEGORY_ITEMS.find((item) => item.cat === selected)?.label ?? 'MODULE' : null;
-  const screenStatus = interactionLocked ? 'LOCKED UNTIL 95% ZOOM' : isLoading ? 'LOADING PROJECT REEL' : 'READY FOR INPUT';
 
   useEffect(() => {
-    if (interactionLocked || isLoading) {
+    if (isLoading) {
       setTypingReady(false);
       return;
     }
@@ -210,10 +209,10 @@ const ConsoleRoom: React.FC<ConsoleRoomProps> = ({ onSelectCategory, interaction
     }, 420);
 
     return () => window.clearTimeout(startTimer);
-  }, [interactionLocked, isLoading]);
+  }, [isLoading]);
 
   useEffect(() => {
-    if (!typingReady || interactionLocked || isLoading) return;
+    if (!typingReady || isLoading) return;
 
     const cycleDurationMs = getRevealDuration(IDLE_LINES) * 1000;
     const loopTimer = window.setInterval(() => {
@@ -221,7 +220,7 @@ const ConsoleRoom: React.FC<ConsoleRoomProps> = ({ onSelectCategory, interaction
     }, cycleDurationMs);
 
     return () => window.clearInterval(loopTimer);
-  }, [typingReady, interactionLocked, isLoading]);
+  }, [typingReady, isLoading]);
 
   const handleSelect = (category: ProjectCategory) => {
     if (interactionLocked || selected) return;
@@ -275,7 +274,7 @@ const ConsoleRoom: React.FC<ConsoleRoomProps> = ({ onSelectCategory, interaction
               </motion.div>
             ) : (
               <motion.div
-                key={`screen-idle-${screenStatus}`}
+                key="screen-idle"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -316,14 +315,6 @@ const ConsoleRoom: React.FC<ConsoleRoomProps> = ({ onSelectCategory, interaction
 
           <div className="absolute inset-x-0 top-[18%] h-[34%] rounded-[8px] border border-[#716252] bg-[linear-gradient(180deg,#8f7a66_0%,#7b6757_100%)] shadow-[0_8px_14px_rgba(37,31,26,0.34)] z-20" />
           <Projector />
-
-          {interactionLocked && (
-            <div className="absolute left-[40%] right-[5%] top-[10%] z-30 text-center md:left-[55%] md:right-[6%] md:top-[14%]">
-              <span className="inline-block rounded-full border border-[#4d648a]/75 bg-[#19283f]/88 px-2 py-[2px] text-[8px] font-mono tracking-[0.09em] text-[#d7e4f7] md:text-[9px]">
-                ZOOM TO 95% TO UNLOCK
-              </span>
-            </div>
-          )}
 
           <div className="absolute left-[28%] right-[3%] top-[13.5%] z-30 md:hidden">
             <div className="grid grid-cols-2 justify-items-center gap-x-1.5 gap-y-3">

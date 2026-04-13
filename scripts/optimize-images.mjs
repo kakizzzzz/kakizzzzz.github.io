@@ -7,7 +7,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '..');
 const generatedPublicDir = 'public/.generated-webp';
 const generatedPublicAssetDir = `${generatedPublicDir}/assets`;
-const rasterExtensions = new Set(['.png', '.jpg', '.jpeg']);
+const rasterExtensions = new Set(['.png', '.jpg', '.jpeg', '.webp']);
 const maxWebpDimension = 16383;
 
 const SIMPLE_VARIANTS = [
@@ -142,9 +142,39 @@ const walkDirectory = async (directoryPath) => {
   return files;
 };
 
-const writeLosslessWebp = async (pipeline, outputPath) => {
+const getDisplayWebpOptions = (inputPath, variant = 'desktop') => {
+  const ext = path.extname(inputPath).toLowerCase();
+  const isMobileVariant = variant === 'mobile';
+
+  if (ext === '.png') {
+    return {
+      quality: isMobileVariant ? 90 : 94,
+      alphaQuality: 100,
+      effort: 6,
+      nearLossless: true,
+      smartSubsample: true,
+    };
+  }
+
+  if (ext === '.webp') {
+    return {
+      quality: isMobileVariant ? 88 : 92,
+      alphaQuality: 100,
+      effort: 6,
+      smartSubsample: true,
+    };
+  }
+
+  return {
+    quality: isMobileVariant ? 88 : 92,
+    effort: 6,
+    smartSubsample: true,
+  };
+};
+
+const writeDisplayWebp = async (pipeline, inputPath, outputPath, variant = 'desktop') => {
   await ensureDirectory(outputPath);
-  await pipeline.webp({ lossless: true, effort: 6 }).toFile(outputPath);
+  await pipeline.webp(getDisplayWebpOptions(inputPath, variant)).toFile(outputPath);
 };
 
 const writeHighFidelityWebp = async (inputPath, outputPath) => {
@@ -157,14 +187,15 @@ const writeHighFidelityWebp = async (inputPath, outputPath) => {
   const webpOptions =
     ext === '.png'
       ? {
-          quality: 97,
+          quality: 94,
           alphaQuality: 100,
           effort: 6,
           nearLossless: true,
           smartSubsample: true,
         }
       : {
-          quality: 95,
+          quality: ext === '.webp' ? 92 : 92,
+          alphaQuality: ext === '.webp' ? 100 : undefined,
           effort: 6,
           smartSubsample: true,
         };
@@ -197,10 +228,12 @@ const processSimpleVariant = async (variant) => {
   const metadata = await sharp(inputPath).metadata();
   const mobileWidth = Math.min(variant.mobileWidth, metadata.width ?? variant.mobileWidth);
 
-  await writeLosslessWebp(sharp(inputPath), desktopOutputPath);
-  await writeLosslessWebp(
+  await writeDisplayWebp(sharp(inputPath), inputPath, desktopOutputPath, 'desktop');
+  await writeDisplayWebp(
     sharp(inputPath).resize({ width: mobileWidth, withoutEnlargement: true }),
+    inputPath,
     mobileOutputPath,
+    'mobile',
   );
 
   console.log(`optimized ${variant.input}`);
@@ -216,9 +249,11 @@ const processLongScrollMobileVariant = async (variant) => {
   }
 
   const mobileWidth = Math.min(variant.mobileWidth, metadata.width);
-  await writeLosslessWebp(
+  await writeDisplayWebp(
     sharp(inputPath).resize({ width: mobileWidth, withoutEnlargement: true }),
+    inputPath,
     mobileOutputPath,
+    'mobile',
   );
 
   console.log(`optimized long mobile ${variant.input}`);
@@ -237,7 +272,9 @@ const processGeneratedWebpMirror = async () => {
     if (!rasterExtensions.has(ext)) continue;
 
     const relativeAssetPath = path.relative(publicAssetsDir, inputPath);
-    const outputPath = path.join(generatedAssetsDir, relativeAssetPath).replace(/\.(png|jpe?g)$/i, '.webp');
+    const outputPath = path
+      .join(generatedAssetsDir, relativeAssetPath)
+      .replace(/\.(png|jpe?g|webp)$/i, '.webp');
     const didOptimize = await writeHighFidelityWebp(inputPath, outputPath);
 
     if (didOptimize) {

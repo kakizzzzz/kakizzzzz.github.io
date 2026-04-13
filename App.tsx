@@ -63,7 +63,19 @@ const preloadFile = (src: string) => {
 
 const preloadAssets = async (sources: string[]) => {
   const queue = [...sources];
-  const workerCount = Math.min(4, queue.length);
+  const hasLimitedConnection =
+    typeof navigator !== 'undefined' &&
+    'connection' in navigator &&
+    ((navigator as Navigator & {
+      connection?: { saveData?: boolean; effectiveType?: string };
+    }).connection?.saveData ||
+      ['slow-2g', '2g', '3g'].includes(
+        (navigator as Navigator & {
+          connection?: { saveData?: boolean; effectiveType?: string };
+        }).connection?.effectiveType ?? '',
+      ));
+  const useConservativePreload = typeof window !== 'undefined' && (window.innerWidth < 768 || hasLimitedConnection);
+  const workerCount = Math.min(useConservativePreload ? 1 : 4, queue.length);
 
   await Promise.allSettled(
     Array.from({ length: workerCount }, async () => {
@@ -80,10 +92,15 @@ const getProjectPreloadSources = (category: ProjectCategory) => {
   const project = PROJECTS[category];
   if (!project) return [];
 
-  const sources = [
-    project.heroImage,
-    ...(project.modules?.map((module) => module.cover) ?? []),
-  ];
+  const primarySources = [project.heroImage];
+  const secondarySources = project.modules?.map((module) => module.cover) ?? [];
+  const isMobilePreload =
+    typeof window !== 'undefined' &&
+    (window.innerWidth < 768 ||
+      ((navigator as Navigator & {
+        connection?: { saveData?: boolean; effectiveType?: string };
+      }).connection?.saveData ?? false));
+  const sources = isMobilePreload ? [...primarySources, secondarySources[0]] : [...primarySources, ...secondarySources];
 
   return [...new Set(sources.filter((src): src is string => Boolean(src)))];
 };

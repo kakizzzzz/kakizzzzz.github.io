@@ -1,6 +1,6 @@
 const BASE_PATH = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
 const GENERATED_WEBP_ROOT = '/.generated-webp';
-const RASTER_IMAGE_PATTERN = /\.(png|jpe?g)$/i;
+const RASTER_IMAGE_PATTERN = /\.(png|jpe?g|webp)$/i;
 const EXTERNAL_SOURCE_PATTERN = /^(?:[a-z]+:)?\/\//i;
 
 const splitSource = (value: string) => {
