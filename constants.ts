@@ -1,7 +1,5 @@
 import { ProjectCategory, ProjectData } from './types';
-
-const BASE_PATH = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
-const asset = (pathname: string) => `${BASE_PATH}${pathname}`;
+import { asset } from './imageAsset';
 
 const storageBinsGallery = Array.from({ length: 9 }, (_, index) =>
   asset(`/assets/amazon/storage-bins/gallery-${String(index + 1).padStart(2, '0')}.png`),

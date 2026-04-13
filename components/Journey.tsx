@@ -6,6 +6,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowDown } from "lucide-react";
 import { ProjectCategory } from "../types";
 import ConsoleRoom from "./ConsoleRoom";
+import { asset } from "../imageAsset";
+import { ImageWithFallback } from "./figma/ImageWithFallback";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -474,10 +476,13 @@ const ImageStoreScene = ({
 }
 
 const Journey: React.FC<JourneyProps> = ({ onSelectCategory }) => {
-  const profileImageSrc = `${(import.meta.env.BASE_URL || '/').replace(/\/$/, '')}/assets/profile/kaki-avatar-2.jpg`;
+  const profileImageSrc = asset('/assets/profile/kaki-avatar-2.jpg');
   const containerRef = useRef<HTMLDivElement>(null);
   const [cardsUnlocked, setCardsUnlocked] = useState(false);
   const [viewportHeight, setViewportHeight] = useState(getViewportHeight);
+  const [isMobileViewport, setIsMobileViewport] = useState(() =>
+    typeof window !== "undefined" ? window.innerWidth < 768 : false,
+  );
   
   // Scroll sequence: title -> bio -> house / console
   const { scrollYProgress } = useScroll({
@@ -539,22 +544,43 @@ const Journey: React.FC<JourneyProps> = ({ onSelectCategory }) => {
 
   const houseSceneScale = useTransform(stage3Progress, [0, 0.3, 0.62, 0.82, 1], [0.5, 1, 1.28, 1.72, 2.28]);
   const houseSceneY = useTransform(stage3Progress, [0, 0.16, 0.3, 0.62, 0.82, 1], [640, 260, 0, -8, -18, -30]);
-  const houseSceneOpacity = useTransform(zoomProgress, [0, 0.88, 0.94, 0.98, 1], [1, 1, 0.55, 0.12, 0]);
-  const sceneDarkenOpacity = useTransform(zoomProgress, [0.88, 0.95, 1], [0, 0.08, 0.02]);
+  const houseOpacityStops = isMobileViewport ? [0, 0.95, 0.972, 0.99, 1] : [0, 0.88, 0.94, 0.98, 1];
+  const houseOpacityValues = isMobileViewport ? [1, 1, 0.28, 0.04, 0] : [1, 1, 0.55, 0.12, 0];
+  const houseSceneOpacity = useTransform(zoomProgress, houseOpacityStops, houseOpacityValues);
+  const sceneDarkenOpacity = useTransform(
+    zoomProgress,
+    isMobileViewport ? [0.95, 0.974, 1] : [0.88, 0.95, 1],
+    isMobileViewport ? [0, 0.18, 0.03] : [0, 0.08, 0.02],
+  );
   const doorOpenProgress = useTransform(zoomProgress, (latest) => {
     const p = (latest - 0.5) / 0.3;
     return Math.max(0, Math.min(1, p));
   });
+  const consoleRevealStart = isMobileViewport ? 0.958 : 0.9;
+  const consoleRevealEnd = isMobileViewport ? 0.988 : 1;
+  const consoleUnlockThreshold = isMobileViewport ? 0.984 : 0.95;
   const consoleRevealOpacity = useTransform(zoomProgress, (latest) => {
-    const p = (latest - 0.9) / 0.1;
+    const p = (latest - consoleRevealStart) / (consoleRevealEnd - consoleRevealStart);
     return Math.max(0, Math.min(1, p));
   });
-  const consoleRevealScale = useTransform(zoomProgress, [0.9, 1], [1.06, 1]);
-  const consoleRevealY = useTransform(zoomProgress, [0.9, 1], [22, 0]);
-  const consoleRevealBlur = useTransform(zoomProgress, [0.9, 1], ["3px", "0px"]);
+  const consoleRevealScale = useTransform(
+    zoomProgress,
+    [consoleRevealStart, consoleRevealEnd],
+    [isMobileViewport ? 1.03 : 1.06, 1],
+  );
+  const consoleRevealY = useTransform(
+    zoomProgress,
+    [consoleRevealStart, consoleRevealEnd],
+    [isMobileViewport ? 14 : 22, 0],
+  );
+  const consoleRevealBlur = useTransform(
+    zoomProgress,
+    [consoleRevealStart, consoleRevealEnd],
+    [isMobileViewport ? "2px" : "3px", "0px"],
+  );
 
   useMotionValueEvent(zoomProgress, "change", (latest) => {
-    setCardsUnlocked(latest >= 0.95);
+    setCardsUnlocked(latest >= consoleUnlockThreshold);
   });
 
   useEffect(() => {
@@ -570,8 +596,12 @@ const Journey: React.FC<JourneyProps> = ({ onSelectCategory }) => {
 
       rafId = window.requestAnimationFrame(() => {
         const nextHeight = getViewportHeight();
+        const nextIsMobile = window.innerWidth < 768;
         setViewportHeight((currentHeight) =>
           Math.abs(currentHeight - nextHeight) > 1 ? nextHeight : currentHeight,
+        );
+        setIsMobileViewport((currentValue) =>
+          currentValue !== nextIsMobile ? nextIsMobile : currentValue,
         );
       });
     };
@@ -719,12 +749,13 @@ const Journey: React.FC<JourneyProps> = ({ onSelectCategory }) => {
          >
              <div className="relative inline-block mb-10">
                 <div className="h-36 w-36 overflow-hidden rounded-full border-[4px] border-white shadow-xl mx-auto relative z-10 bg-white md:h-40 md:w-40">
-                    <img
+                    <ImageWithFallback
                       src={profileImageSrc}
                       alt="Portrait"
                       className="h-full w-full object-cover object-[center_62%]"
                       loading="lazy"
                       decoding="async"
+                      loadingEffect="none"
                     />
                 </div>
              </div>

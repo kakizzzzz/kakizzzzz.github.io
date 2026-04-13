@@ -1,6 +1,4 @@
-const BASE_PATH = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
-
-const asset = (pathname: string) => `${BASE_PATH}${pathname}`;
+import { asset } from './imageAsset';
 
 const MOBILE_IMAGE_MAP: Record<string, string> = {
   [asset('/assets/graphic/feline-blessing-cover.webp')]: asset('/assets/graphic/feline-blessing-cover-mobile.webp'),

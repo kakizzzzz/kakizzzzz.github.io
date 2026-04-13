@@ -15,15 +15,21 @@ const SmoothScroll: React.FC<SmoothScrollProps> = ({ children, enabled = true })
   const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
+    const isTouchDevice =
+      window.matchMedia('(pointer: coarse)').matches || window.navigator.maxTouchPoints > 0;
+
     // 1. Initialize Lenis
     const lenis = new Lenis({
-      duration: 0.72,
+      duration: isTouchDevice ? 0.5 : 0.72,
       easing: (t) => 1 - Math.pow(1 - t, 3),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       smoothWheel: true,
+      syncTouch: isTouchDevice,
+      syncTouchLerp: isTouchDevice ? 0.12 : undefined,
+      touchInertiaMultiplier: isTouchDevice ? 28 : undefined,
       wheelMultiplier: 0.94,
-      touchMultiplier: 1.1,
+      touchMultiplier: isTouchDevice ? 1.38 : 1.1,
       infinite: false,
     });
 

@@ -9,6 +9,7 @@ import { PageState, ProjectCategory } from './types';
 import { PROJECTS } from './constants';
 import MobileOptimizer from './components/MobileOptimizer';
 import { AppRoute, parsePath, pathForRoute, toAppPathname } from './routing';
+import { getOptimizedImageSource } from './imageAsset';
 
 const IMAGE_ASSET_PATTERN = /\.(avif|gif|jpe?g|png|svg|webp)(\?.*)?$/i;
 const loadProjectDetail = () => import('./components/ProjectDetail');
@@ -23,13 +24,23 @@ const preloadImage = (src: string) =>
       return;
     }
 
+    const preferredSrc = getOptimizedImageSource(src) ?? src;
     const image = new window.Image();
+    let triedOriginalSource = false;
     const complete = () => resolve();
 
     image.decoding = 'async';
     image.onload = complete;
-    image.onerror = complete;
-    image.src = src;
+    image.onerror = () => {
+      if (!triedOriginalSource && preferredSrc !== src) {
+        triedOriginalSource = true;
+        image.src = src;
+        return;
+      }
+
+      complete();
+    };
+    image.src = preferredSrc;
 
     if (image.complete) {
       resolve();

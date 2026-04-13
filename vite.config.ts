@@ -61,8 +61,9 @@ export default defineConfig({
       logStats: true,
       cache: true,
       cacheLocation: path.resolve(__dirname, '.vite-image-cache'),
-      // Keep full-length layout boards intact. This plugin only re-encodes assets;
-      // it does not tile or split images.
+      // Keep full-length layout boards intact. WebP generation happens in the
+      // prebuild script; this plugin then optimizes the emitted assets in-place
+      // without tiling or changing layout.
       png: {
         compressionLevel: 9,
         quality: 100,
@@ -80,9 +81,10 @@ export default defineConfig({
         mozjpeg: true,
       },
       webp: {
-        lossless: true,
+        quality: 97,
         effort: 6,
         alphaQuality: 100,
+        smartSubsample: true,
       },
       avif: {
         lossless: true,

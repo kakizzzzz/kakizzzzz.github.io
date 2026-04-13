@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { getOptimizedImageSource } from '../../imageAsset'
 
 type LoadingEffect = 'pulse' | 'static' | 'none'
 type NativeImageProps = React.ComponentPropsWithoutRef<'img'>
@@ -14,6 +15,9 @@ const ERROR_IMG_SRC = `data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODgiIGhlaWdodD0
 export function ImageWithFallback(props: ImageWithFallbackProps) {
   const [didError, setDidError] = useState(false)
   const [isLoaded, setIsLoaded] = useState(false)
+  const [resolvedSrc, setResolvedSrc] = useState<string | undefined>(() => getOptimizedImageSource(props.src) ?? props.src ?? undefined)
+  const [resolvedMobileSrc, setResolvedMobileSrc] = useState<string | undefined>(() => getOptimizedImageSource(props.mobileSrc) ?? props.mobileSrc ?? undefined)
+  const [didFallbackToOriginal, setDidFallbackToOriginal] = useState(false)
 
   const {
     src,
@@ -32,9 +36,21 @@ export function ImageWithFallback(props: ImageWithFallbackProps) {
   useEffect(() => {
     setDidError(false)
     setIsLoaded(false)
-  }, [src])
+    setDidFallbackToOriginal(false)
+    setResolvedSrc(getOptimizedImageSource(src) ?? src ?? undefined)
+    setResolvedMobileSrc(getOptimizedImageSource(mobileSrc) ?? mobileSrc ?? undefined)
+  }, [mobileSrc, src])
 
   const handleError = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    if (!didFallbackToOriginal && src && resolvedSrc && resolvedSrc !== src) {
+      setDidFallbackToOriginal(true)
+      setDidError(false)
+      setIsLoaded(false)
+      setResolvedSrc(src)
+      setResolvedMobileSrc(mobileSrc ?? undefined)
+      return
+    }
+
     setDidError(true)
     onError?.(event)
   }
@@ -63,9 +79,9 @@ export function ImageWithFallback(props: ImageWithFallbackProps) {
     </div>
   ) : (
     <picture>
-      {mobileSrc && <source media="(max-width: 768px)" srcSet={mobileSrc} />}
+      {resolvedMobileSrc && <source media="(max-width: 768px)" srcSet={resolvedMobileSrc} />}
       <img
-        src={src}
+        src={resolvedSrc}
         alt={alt}
         className={`${className ?? ''} ${loadingClassName}`.trim()}
         style={style}
