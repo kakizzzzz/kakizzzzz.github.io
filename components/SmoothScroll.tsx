@@ -13,10 +13,53 @@ interface SmoothScrollProps {
 
 const SmoothScroll: React.FC<SmoothScrollProps> = ({ children, enabled = true }) => {
   const lenisRef = useRef<Lenis | null>(null);
+  const isNativeTouchScrollRef = useRef(false);
+  const viewportWidthRef = useRef(typeof window !== 'undefined' ? window.innerWidth : 0);
 
   useEffect(() => {
     const isTouchDevice =
       window.matchMedia('(pointer: coarse)').matches || window.navigator.maxTouchPoints > 0;
+
+    isNativeTouchScrollRef.current = isTouchDevice;
+
+    if (isTouchDevice) {
+      const refreshTouchScrollTrigger = (force = false) => {
+        const nextWidth = window.innerWidth;
+        const widthChanged = Math.abs(nextWidth - viewportWidthRef.current) > 2;
+
+        if (!force && !widthChanged) {
+          return;
+        }
+
+        viewportWidthRef.current = nextWidth;
+        ScrollTrigger.refresh();
+      };
+      const handleResize = () => refreshTouchScrollTrigger();
+      const handleOrientationChange = () => refreshTouchScrollTrigger(true);
+
+      if (enabled) {
+        document.documentElement.style.overflow = '';
+        document.body.style.overflow = '';
+        document.documentElement.classList.remove('lenis-stopped');
+      } else {
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden';
+        document.documentElement.classList.add('lenis-stopped');
+      }
+
+      viewportWidthRef.current = window.innerWidth;
+      window.addEventListener('resize', handleResize, { passive: true });
+      window.addEventListener('orientationchange', handleOrientationChange);
+      refreshTouchScrollTrigger(true);
+
+      return () => {
+        window.removeEventListener('resize', handleResize);
+        window.removeEventListener('orientationchange', handleOrientationChange);
+        document.documentElement.classList.remove('lenis-stopped');
+        document.documentElement.style.overflow = '';
+        document.body.style.overflow = '';
+      };
+    }
 
     const touchDuration = 0.22;
 
@@ -73,6 +116,19 @@ const SmoothScroll: React.FC<SmoothScrollProps> = ({ children, enabled = true })
 
   // Handle Enable/Disable State
   useEffect(() => {
+    if (isNativeTouchScrollRef.current) {
+      if (enabled) {
+        document.documentElement.style.overflow = '';
+        document.body.style.overflow = '';
+        document.documentElement.classList.remove('lenis-stopped');
+      } else {
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden';
+        document.documentElement.classList.add('lenis-stopped');
+      }
+      return;
+    }
+
     const lenis = lenisRef.current;
     if (!lenis) return;
 
