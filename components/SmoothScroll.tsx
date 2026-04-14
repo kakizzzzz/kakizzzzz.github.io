@@ -18,18 +18,20 @@ const SmoothScroll: React.FC<SmoothScrollProps> = ({ children, enabled = true })
     const isTouchDevice =
       window.matchMedia('(pointer: coarse)').matches || window.navigator.maxTouchPoints > 0;
 
-    // 1. Initialize Lenis
+    const touchDuration = 0.22;
+
+    // Keep touch scrolling close to native mobile behavior.
     const lenis = new Lenis({
-      duration: isTouchDevice ? 0.5 : 0.72,
+      duration: isTouchDevice ? touchDuration : 0.72,
       easing: (t) => 1 - Math.pow(1 - t, 3),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
-      smoothWheel: true,
-      syncTouch: isTouchDevice,
-      syncTouchLerp: isTouchDevice ? 0.12 : undefined,
-      touchInertiaMultiplier: isTouchDevice ? 28 : undefined,
+      smoothWheel: !isTouchDevice,
+      syncTouch: false,
+      syncTouchLerp: undefined,
+      touchInertiaMultiplier: undefined,
       wheelMultiplier: 0.94,
-      touchMultiplier: isTouchDevice ? 1.38 : 1.1,
+      touchMultiplier: isTouchDevice ? 1 : 1.1,
       infinite: false,
     });
 

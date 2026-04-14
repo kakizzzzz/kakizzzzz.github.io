@@ -479,6 +479,8 @@ const Journey: React.FC<JourneyProps> = ({ onSelectCategory }) => {
   const profileImageSrc = asset('/assets/profile/kaki-avatar-2.jpg');
   const containerRef = useRef<HTMLDivElement>(null);
   const stageSnapTimeoutRef = useRef<number | null>(null);
+  const touchStartYRef = useRef<number | null>(null);
+  const touchLastYRef = useRef<number | null>(null);
   const [cardsUnlocked, setCardsUnlocked] = useState(false);
   const [viewportHeight, setViewportHeight] = useState(getViewportHeight);
   const [isMobileViewport, setIsMobileViewport] = useState(() =>
@@ -653,15 +655,46 @@ const Journey: React.FC<JourneyProps> = ({ onSelectCategory }) => {
       clearSnapLock();
       stageSnapTimeoutRef.current = window.setTimeout(() => {
         stageSnapTimeoutRef.current = null;
-      }, 460);
+      }, 320);
+    };
+
+    const resetTouchGesture = () => {
+      touchStartYRef.current = null;
+      touchLastYRef.current = null;
+    };
+
+    const handleTouchStart = (event: TouchEvent) => {
+      const touchY = event.touches[0]?.clientY;
+      if (typeof touchY !== "number") return;
+
+      touchStartYRef.current = touchY;
+      touchLastYRef.current = touchY;
+    };
+
+    const handleTouchMove = (event: TouchEvent) => {
+      const touchY = event.touches[0]?.clientY;
+      if (typeof touchY !== "number") return;
+
+      touchLastYRef.current = touchY;
     };
 
     const snapToSecondStage = () => {
       if (stageSnapTimeoutRef.current) return;
 
       const currentScroll = window.scrollY || document.documentElement.scrollTop || 0;
-      const firstStageLowerBound = stableViewportHeight * 0.1;
-      const firstStageUpperBound = stableViewportHeight * 1.02;
+      const swipeDistance =
+        touchStartYRef.current !== null && touchLastYRef.current !== null
+          ? touchLastYRef.current - touchStartYRef.current
+          : 0;
+      const isUpwardSwipe = swipeDistance <= -14;
+      const firstStageLowerBound = stableViewportHeight * 0.8;
+      const firstStageUpperBound = stableViewportHeight * 1.08;
+
+      resetTouchGesture();
+
+      if (!isUpwardSwipe) {
+        return;
+      }
 
       if (currentScroll < firstStageLowerBound || currentScroll > firstStageUpperBound) {
         return;
@@ -675,13 +708,18 @@ const Journey: React.FC<JourneyProps> = ({ onSelectCategory }) => {
       });
     };
 
+    window.addEventListener("touchstart", handleTouchStart, { passive: true });
+    window.addEventListener("touchmove", handleTouchMove, { passive: true });
     window.addEventListener("touchend", snapToSecondStage, { passive: true });
-    window.addEventListener("touchcancel", snapToSecondStage, { passive: true });
+    window.addEventListener("touchcancel", resetTouchGesture, { passive: true });
 
     return () => {
       clearSnapLock();
+      resetTouchGesture();
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchmove", handleTouchMove);
       window.removeEventListener("touchend", snapToSecondStage);
-      window.removeEventListener("touchcancel", snapToSecondStage);
+      window.removeEventListener("touchcancel", resetTouchGesture);
     };
   }, [isMobileViewport, stableViewportHeight]);
 
