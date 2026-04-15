@@ -1,11 +1,120 @@
 
 import React, { useEffect, useId, useRef, useState } from "react";
-import { motion, useMotionValue, useMotionValueEvent, useTransform, AnimatePresence, MotionValue, MotionStyle } from "framer-motion";
+import { motion, useScroll, useTransform, useMotionValueEvent, AnimatePresence, MotionValue, MotionStyle } from "framer-motion";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import Lenis from "@studio-freight/lenis";
 import { ArrowDown } from "lucide-react";
 import { ProjectCategory } from "../types";
 import ConsoleRoom from "./ConsoleRoom";
 import { asset } from "../imageAsset";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
+
+gsap.registerPlugin(ScrollTrigger);
+
+declare global {
+  interface Window {
+    __kakiLegacyTouchLenis?: {
+      ownerId: string | null;
+      lenis: Lenis | null;
+      rafId: number | null;
+    };
+  }
+}
+
+const getLegacyTouchLenisStore = () => {
+  if (typeof window === "undefined") return null;
+
+  if (!window.__kakiLegacyTouchLenis) {
+    window.__kakiLegacyTouchLenis = {
+      ownerId: null,
+      lenis: null,
+      rafId: null,
+    };
+  }
+
+  return window.__kakiLegacyTouchLenis;
+};
+
+const useLegacyTouchLenis = (scope: string, enabled = true) => {
+  const ownerIdRef = useRef(`${scope}-${Math.random().toString(36).slice(2)}`);
+
+  useEffect(() => {
+    if (!enabled || typeof window === "undefined") return;
+
+    const isTouchDevice =
+      window.matchMedia("(pointer: coarse)").matches || window.navigator.maxTouchPoints > 0;
+
+    if (!isTouchDevice) return;
+
+    const maxScrollHeight = Math.max(
+      document.documentElement.scrollHeight,
+      document.body.scrollHeight,
+    );
+
+    if (maxScrollHeight <= window.innerHeight + 4) {
+      return;
+    }
+
+    const store = getLegacyTouchLenisStore();
+    if (!store) return;
+
+    if (store.ownerId && store.ownerId !== ownerIdRef.current) {
+      return;
+    }
+
+    let lenis = store.lenis;
+
+    if (!lenis) {
+      lenis = new Lenis({
+        duration: 0.5,
+        easing: (t) => 1 - Math.pow(1 - t, 3),
+        orientation: "vertical",
+        gestureOrientation: "vertical",
+        smoothWheel: true,
+        syncTouch: true,
+        syncTouchLerp: 0.12,
+        touchInertiaMultiplier: 28,
+        wheelMultiplier: 0.94,
+        touchMultiplier: 1.38,
+        infinite: false,
+      });
+
+      lenis.on("scroll", ScrollTrigger.update);
+
+      const update = (time: number) => {
+        lenis?.raf(time);
+        store.rafId = window.requestAnimationFrame(update);
+      };
+
+      store.rafId = window.requestAnimationFrame(update);
+      store.lenis = lenis;
+    }
+
+    store.ownerId = ownerIdRef.current;
+    ScrollTrigger.refresh();
+
+    return () => {
+      const currentStore = window.__kakiLegacyTouchLenis;
+
+      if (!currentStore || currentStore.ownerId !== ownerIdRef.current) {
+        return;
+      }
+
+      if (currentStore.rafId) {
+        window.cancelAnimationFrame(currentStore.rafId);
+      }
+
+      currentStore.lenis?.destroy();
+      window.__kakiLegacyTouchLenis = {
+        ownerId: null,
+        lenis: null,
+        rafId: null,
+      };
+      ScrollTrigger.update();
+    };
+  }, [enabled]);
+};
 
 interface JourneyProps {
   onSelectCategory: (category: ProjectCategory) => void;
@@ -170,8 +279,8 @@ const Drone = ({
 // --- HOT AIR BALLOON COMPONENT ---
 const HotAirBalloon = ({ className, color1 = "#fca5a5", color2 = "#fecaca", scale = 1, delay = 0 }: { className?: string, color1?: string, color2?: string, scale?: number, delay?: number }) => (
   <motion.div 
-    className={`absolute pointer-events-none transform-gpu ${className}`}
-    style={{ scale, willChange: "transform", backfaceVisibility: "hidden" }}
+    className={`absolute pointer-events-none ${className}`}
+    style={{ transform: `scale(${scale})` }}
     animate={{ y: [-8, 8, -8] }}
     transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: delay }}
   >
@@ -205,7 +314,7 @@ const Cloud: React.FC<{
 
   return (
     <motion.div
-      className={`absolute pointer-events-none transform-gpu ${className}`}
+      className={`absolute pointer-events-none ${className}`}
       initial={{ x: -36, y: 2 }}
       animate={{ x: [0, 72, 0], y: [2, -7, 2] }}
       transition={{
@@ -215,7 +324,7 @@ const Cloud: React.FC<{
         ease: "easeInOut",
         delay,
       }}
-      style={{ scale, willChange: "transform", backfaceVisibility: "hidden" }}
+      style={{ scale }}
     >
       <svg
         width="300"
@@ -280,10 +389,9 @@ const Wind: React.FC<{
   opacity?: number;
 }> = ({ className, delay = 0, duration = 14, opacity = 0.35 }) => (
   <motion.div
-    className={`absolute pointer-events-none transform-gpu ${className}`}
+    className={`absolute pointer-events-none ${className}`}
     initial={{ x: "-14vw", opacity: 0 }}
     animate={{ x: ["-14vw", "14vw"], opacity: [0, opacity, 0] }}
-    style={{ willChange: "transform, opacity", backfaceVisibility: "hidden" }}
     transition={{
       duration,
       repeat: Infinity,
@@ -473,17 +581,23 @@ const ImageStoreScene = ({
 }
 
 const Journey: React.FC<JourneyProps> = ({ onSelectCategory }) => {
+  useLegacyTouchLenis("journey");
+
   const profileImageSrc = asset('/assets/profile/kaki-avatar-2.jpg');
   const containerRef = useRef<HTMLDivElement>(null);
-  const viewportWidthRef = useRef(typeof window !== "undefined" ? window.innerWidth : 0);
+  const stageSnapTimeoutRef = useRef<number | null>(null);
   const [cardsUnlocked, setCardsUnlocked] = useState(false);
   const [viewportHeight, setViewportHeight] = useState(getViewportHeight);
   const [isMobileViewport, setIsMobileViewport] = useState(() =>
     typeof window !== "undefined" ? window.innerWidth < 768 : false,
   );
-  const scrollYProgress = useMotionValue(0);
   
   // Scroll sequence: title -> bio -> house / console
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"]
+  });
+
   // Background Parallax & Opacity (Clouds)
   const cloudYFront = useTransform(scrollYProgress, [0, 0.35, 0.7, 1], [0, -560, -1080, -1720]);
   const cloudYMid = useTransform(scrollYProgress, [0, 0.35, 0.7, 1], [0, -320, -740, -1140]);
@@ -541,6 +655,11 @@ const Journey: React.FC<JourneyProps> = ({ onSelectCategory }) => {
   const houseOpacityStops = isMobileViewport ? [0, 0.95, 0.972, 0.99, 1] : [0, 0.88, 0.94, 0.98, 1];
   const houseOpacityValues = isMobileViewport ? [1, 1, 0.28, 0.04, 0] : [1, 1, 0.55, 0.12, 0];
   const houseSceneOpacity = useTransform(zoomProgress, houseOpacityStops, houseOpacityValues);
+  const sceneDarkenOpacity = useTransform(
+    zoomProgress,
+    isMobileViewport ? [0.95, 0.974, 1] : [0.88, 0.95, 1],
+    isMobileViewport ? [0, 0.18, 0.03] : [0, 0.08, 0.02],
+  );
   const doorOpenProgress = useTransform(zoomProgress, (latest) => {
     const p = (latest - 0.5) / 0.3;
     return Math.max(0, Math.min(1, p));
@@ -568,29 +687,26 @@ const Journey: React.FC<JourneyProps> = ({ onSelectCategory }) => {
     [isMobileViewport ? "2px" : "3px", "0px"],
   );
 
+  useMotionValueEvent(zoomProgress, "change", (latest) => {
+    setCardsUnlocked(latest >= consoleUnlockThreshold);
+  });
+
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     let rafId = 0;
-    const handleOrientationChange = () => syncViewportHeight(true);
+    const visualViewport = window.visualViewport;
 
-    const syncViewportHeight = (force = false) => {
+    const syncViewportHeight = () => {
       if (rafId) {
         window.cancelAnimationFrame(rafId);
       }
 
       rafId = window.requestAnimationFrame(() => {
-        const nextHeight = Math.max(1, Math.round(window.innerHeight));
-        const nextWidth = window.innerWidth;
+        const nextHeight = getViewportHeight();
         const nextIsMobile = window.innerWidth < 768;
-        const widthChanged = Math.abs(nextWidth - viewportWidthRef.current) > 2;
-
-        viewportWidthRef.current = nextWidth;
-
         setViewportHeight((currentHeight) =>
-          !nextIsMobile || force || widthChanged || currentHeight <= 0
-            ? nextHeight
-            : currentHeight,
+          Math.abs(currentHeight - nextHeight) > 1 ? nextHeight : currentHeight,
         );
         setIsMobileViewport((currentValue) =>
           currentValue !== nextIsMobile ? nextIsMobile : currentValue,
@@ -598,25 +714,26 @@ const Journey: React.FC<JourneyProps> = ({ onSelectCategory }) => {
       });
     };
 
-    const handleResize = () => syncViewportHeight();
-
-    syncViewportHeight(true);
-    window.addEventListener("resize", handleResize, { passive: true });
-    window.addEventListener("orientationchange", handleOrientationChange);
+    syncViewportHeight();
+    window.addEventListener("resize", syncViewportHeight, { passive: true });
+    window.addEventListener("orientationchange", syncViewportHeight);
+    visualViewport?.addEventListener("resize", syncViewportHeight);
+    visualViewport?.addEventListener("scroll", syncViewportHeight);
 
     return () => {
       if (rafId) {
         window.cancelAnimationFrame(rafId);
       }
-      window.removeEventListener("resize", handleResize);
-      window.removeEventListener("orientationchange", handleOrientationChange);
+      window.removeEventListener("resize", syncViewportHeight);
+      window.removeEventListener("orientationchange", syncViewportHeight);
+      visualViewport?.removeEventListener("resize", syncViewportHeight);
+      visualViewport?.removeEventListener("scroll", syncViewportHeight);
     };
   }, []);
 
   const stableViewportHeight = viewportHeight || getViewportHeight();
-  const consoleHoldHeight = isMobileViewport ? stableViewportHeight * 0.7 : 0;
   const rootHeightStyle = stableViewportHeight
-    ? { height: `${stableViewportHeight * 4 + consoleHoldHeight}px` }
+    ? { height: `${stableViewportHeight * 4}px` }
     : undefined;
   const stageHeightStyle = stableViewportHeight
     ? { height: `${stableViewportHeight}px` }
@@ -626,42 +743,54 @@ const Journey: React.FC<JourneyProps> = ({ onSelectCategory }) => {
     : undefined;
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    ScrollTrigger.refresh();
+  }, [viewportHeight]);
 
-    let rafId = 0;
+  useEffect(() => {
+    if (typeof window === "undefined" || !isMobileViewport || !stableViewportHeight) return;
 
-    const updateScrollProgress = () => {
-      rafId = 0;
-
-      const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
-      const baseScrollRange = Math.max(stableViewportHeight * 3, 1);
-      scrollYProgress.set(Math.max(0, Math.min(scrollTop / baseScrollRange, 1)));
+    const clearSnapLock = () => {
+      if (stageSnapTimeoutRef.current) {
+        window.clearTimeout(stageSnapTimeoutRef.current);
+        stageSnapTimeoutRef.current = null;
+      }
     };
 
-    const requestScrollProgressUpdate = () => {
-      if (rafId) return;
-      rafId = window.requestAnimationFrame(updateScrollProgress);
+    const lockSnap = () => {
+      clearSnapLock();
+      stageSnapTimeoutRef.current = window.setTimeout(() => {
+        stageSnapTimeoutRef.current = null;
+      }, 460);
     };
 
-    requestScrollProgressUpdate();
-    window.addEventListener("scroll", requestScrollProgressUpdate, { passive: true });
-    window.addEventListener("resize", requestScrollProgressUpdate, { passive: true });
-    window.addEventListener("orientationchange", requestScrollProgressUpdate);
+    const snapToSecondStage = () => {
+      if (stageSnapTimeoutRef.current) return;
+
+      const currentScroll = window.scrollY || document.documentElement.scrollTop || 0;
+      const firstStageLowerBound = stableViewportHeight * 0.1;
+      const firstStageUpperBound = stableViewportHeight * 1.02;
+
+      if (currentScroll < firstStageLowerBound || currentScroll > firstStageUpperBound) {
+        return;
+      }
+
+      lockSnap();
+      window.scrollTo({
+        top: stableViewportHeight,
+        left: 0,
+        behavior: 'smooth',
+      });
+    };
+
+    window.addEventListener("touchend", snapToSecondStage, { passive: true });
+    window.addEventListener("touchcancel", snapToSecondStage, { passive: true });
 
     return () => {
-      if (rafId) {
-        window.cancelAnimationFrame(rafId);
-      }
-      window.removeEventListener("scroll", requestScrollProgressUpdate);
-      window.removeEventListener("resize", requestScrollProgressUpdate);
-      window.removeEventListener("orientationchange", requestScrollProgressUpdate);
+      clearSnapLock();
+      window.removeEventListener("touchend", snapToSecondStage);
+      window.removeEventListener("touchcancel", snapToSecondStage);
     };
-  }, [scrollYProgress, stableViewportHeight]);
-
-  useMotionValueEvent(zoomProgress, "change", (latest) => {
-    const nextCardsUnlocked = latest >= consoleUnlockThreshold;
-    setCardsUnlocked((currentValue) => (currentValue === nextCardsUnlocked ? currentValue : nextCardsUnlocked));
-  });
+  }, [isMobileViewport, stableViewportHeight]);
 
   return (
     <div ref={containerRef} className="relative h-[400vh] w-full" style={rootHeightStyle}>
@@ -671,23 +800,23 @@ const Journey: React.FC<JourneyProps> = ({ onSelectCategory }) => {
           {/* Gradient Sky: Rich Blue to White */}
           <motion.div 
             className="absolute inset-0 bg-gradient-to-b from-[#3b82f6] via-[#93c5fd] to-white"
-            style={{ opacity: skyOpacity, willChange: "opacity" }}
+            style={{ opacity: skyOpacity }}
           />
 
           {/* Top blue veil to keep the sky clean while lifting title contrast */}
           <motion.div
             className="absolute inset-x-0 top-0 h-[52vh] bg-gradient-to-b from-[#2563eb]/32 via-[#3b82f6]/14 to-transparent"
-            style={{ opacity: skyOpacity, willChange: "opacity" }}
+            style={{ opacity: skyOpacity }}
           />
           
           {/* Sun */}
           <motion.div 
             className="absolute top-[-5%] right-[-5%] w-[60vw] h-[60vw] bg-white/40 blur-[70px] md:blur-[100px] rounded-full mix-blend-overlay"
-            style={{ opacity: skyOpacity, willChange: "opacity, transform" }}
+            style={{ opacity: skyOpacity }}
           />
 
           {/* Wind layer */}
-          <motion.div className="absolute inset-0 w-full h-full" style={{ y: windY, opacity: windLayerOpacity, willChange: "transform, opacity" }}>
+          <motion.div className="absolute inset-0 w-full h-full" style={{ y: windY, opacity: windLayerOpacity }}>
             <Wind className="top-[8%] left-[10%]" duration={18} delay={0.3} opacity={0.22} />
             <Wind className="top-[15%] right-[8%]" duration={22} delay={1.4} opacity={0.2} />
             <Wind className="top-[24%] left-[35%]" duration={24} delay={2.1} opacity={0.16} />
@@ -695,27 +824,27 @@ const Journey: React.FC<JourneyProps> = ({ onSelectCategory }) => {
 
           {/* --- CLOUD LAYERS --- */}
           {/* Back Clouds */}
-          <motion.div className="absolute inset-0 w-full h-full" style={{ x: cloudXBack, y: cloudYBack, opacity: atmosphereOpacity, scale: cloudScaleBack, willChange: "transform, opacity" }}>
+          <motion.div className="absolute inset-0 w-full h-full" style={{ x: cloudXBack, y: cloudYBack, opacity: atmosphereOpacity, scale: cloudScaleBack }}>
              <Cloud className="top-[15%] left-[15%]" scale={0.72} duration={58} />
              <Cloud className="top-[30%] right-[20%]" scale={0.56} delay={5} duration={66} />
           </motion.div>
 
           {/* Mid Clouds */}
-          <motion.div className="absolute inset-0 w-full h-full" style={{ x: cloudXMid, y: cloudYMid, opacity: atmosphereOpacity, scale: cloudScaleMid, willChange: "transform, opacity" }}>
+          <motion.div className="absolute inset-0 w-full h-full" style={{ x: cloudXMid, y: cloudYMid, opacity: atmosphereOpacity, scale: cloudScaleMid }}>
              <Cloud className="top-[8%] left-[5%]" scale={1.05} duration={46} />
              <Cloud className="top-[40%] right-[5%]" scale={0.92} delay={2} duration={52} />
              <Cloud className="bottom-[30%] left-[30%]" scale={0.82} delay={8} duration={49} />
           </motion.div>
 
            {/* Front Clouds */}
-           <motion.div className="absolute inset-0 w-full h-full" style={{ x: cloudXFront, y: cloudYFront, opacity: atmosphereOpacity, scale: cloudScaleFront, willChange: "transform, opacity" }}>
+           <motion.div className="absolute inset-0 w-full h-full" style={{ x: cloudXFront, y: cloudYFront, opacity: atmosphereOpacity, scale: cloudScaleFront }}>
              <Cloud className="top-[25%] -right-[5%]" scale={1.52} delay={1} duration={36} />
              <Cloud className="bottom-[20%] -left-[5%]" scale={1.38} delay={3} duration={42} />
           </motion.div>
           
           {/* --- BALLOONS LAYER --- */}
           {/* Fixed Container coordinates must be within 0-100vh to be visible */}
-          <motion.div className="absolute inset-0 w-full h-full" style={{ y: balloonsY, opacity: balloonLayerOpacity, willChange: "transform, opacity" }}>
+          <motion.div className="absolute inset-0 w-full h-full" style={{ y: balloonsY, opacity: balloonLayerOpacity }}>
               
               {/* Balloon 2: Blue (Mid Left) */}
               <motion.div className="absolute top-[45vh] left-[5vw]" style={{ opacity: b2Opacity }}>
@@ -838,6 +967,11 @@ const Journey: React.FC<JourneyProps> = ({ onSelectCategory }) => {
         >
           <ImageStoreScene doorOpenProgress={doorOpenProgress} viewportHeight={stableViewportHeight} />
         </motion.div>
+
+        <motion.div
+          className="absolute inset-0 bg-black z-[55] pointer-events-none"
+          style={{ opacity: sceneDarkenOpacity }}
+        />
 
         <motion.div
           className="absolute inset-0 z-[60]"
